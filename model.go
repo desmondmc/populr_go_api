@@ -1,15 +1,14 @@
 package main
 
-import "gopkg.in/mgo.v2/bson"
+import "time"
 
 type User struct {
-	Id       bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
-	Username string        `json:"username"`
-	Password string        `json:"password"`
-}
-
-type UsersCollection struct {
-	Data []User `json:"data"`
+	ID        uint       `json:"id" gorm:"primary_key"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
+	Username  string     `json:"username" sql:"type:varchar(100);unique_index"`
+	Password  string     `json:"password"`
 }
 
 type UserResource struct {

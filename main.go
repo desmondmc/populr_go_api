@@ -4,23 +4,29 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
+	"github.com/jinzhu/gorm"
 	"github.com/justinas/alice"
-	"gopkg.in/mgo.v2"
+	_ "github.com/lib/pq"
 )
 
 type appContext struct {
-	db *mgo.Database
+	db *gorm.DB
 }
 
 func main() {
-	session, err := mgo.Dial("localhost")
+	db, err := gorm.Open("postgres", "user=desmondmcnamee dbname=populr sslmode=disable")
+
+	if !db.HasTable(&User{}) {
+		db.CreateTable(&User{})
+	}
+
 	if err != nil {
 		panic(err)
 	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
+	defer db.Close()
 
-	appC := appContext{session.DB("test")}
+	appC := appContext{&db}
+
 	commonHandlers := alice.New(context.ClearHandler, loggingHandler, recoverHandler, acceptHandler)
 	router := NewRouter()
 	router.Get("/user/:id", commonHandlers.ThenFunc(appC.getUserHandler))
