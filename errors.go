@@ -27,5 +27,6 @@ var (
 	ErrNotAcceptable        = &Error{"not_acceptable", 406, "Not Acceptable", "Accept header must be set to 'application/vnd.api+json'."}
 	ErrUnsupportedMediaType = &Error{"unsupported_media_type", 415, "Unsupported Media Type", "Content-Type header must be set to: 'application/vnd.api+json'."}
 	ErrInternalServer       = &Error{"internal_server_error", 500, "Internal Server Error", "Something went wrong."}
-	ErrUserExists           = &Error{"user_already_exists", 400, "User Already Exists", "New users must have unique username."}
+	ErrUserExists           = &Error{"user_already_exists", 409, "User Already Exists", "New users must have unique username."}
+	ErrNoXKey               = &Error{"no_x_key", 409, "No x-key value is header", "HTTP x-key needs to be set for this request."}
 )

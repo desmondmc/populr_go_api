@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"runtime/debug"
 	"time"
 
 	"github.com/gorilla/context"
@@ -15,6 +16,8 @@ func recoverHandler(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				log.Printf("panic: %+v", err)
+
+				debug.PrintStack()
 				WriteError(w, ErrInternalServer)
 			}
 		}()
@@ -58,6 +61,24 @@ func contentTypeHandler(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
+	}
+
+	return http.HandlerFunc(fn)
+}
+
+func userIdHandler(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		key := r.Header.Get("x-key")
+		if key == "" {
+			log.Printf("No x-key passed")
+			WriteError(w, ErrNoXKey)
+			return
+		}
+
+		if next != nil {
+			context.Set(r, "xkey", key)
+			next.ServeHTTP(w, r)
+		}
 	}
 
 	return http.HandlerFunc(fn)
