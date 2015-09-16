@@ -52,7 +52,7 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	Respond(w, r, 201, newUser)
 }
 
-// Returns a single user.
+// Returns all users that match search
 func (c *appContext) searchUsersHandler(w http.ResponseWriter, r *http.Request) {
 	params := context.Get(r, "params").(httprouter.Params)
 	searchTerm := params.ByName("term")
