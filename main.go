@@ -35,6 +35,7 @@ func main() {
 	router.Get("/followers", loggedInCommonHandlers.ThenFunc(appC.getUserFollowersHandler))
 	router.Get("/following", loggedInCommonHandlers.ThenFunc(appC.getUsersFollowingHandler))
 	router.Get("/users", commonHandlers.ThenFunc(appC.getUsersHandler))
+	router.Get("/searchusers/:term", loggedInCommonHandlers.ThenFunc(appC.searchUsersHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(UserResource{})).ThenFunc(appC.createUserHandler))
 	router.Post("/follow/:id", loggedInCommonHandlers.ThenFunc(appC.followUserHandler))
 	router.Delete("/unfollow/:id", loggedInCommonHandlers.ThenFunc(appC.unfollowUserHandler))
