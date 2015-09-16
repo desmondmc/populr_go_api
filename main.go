@@ -5,26 +5,26 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
-	"github.com/jinzhu/gorm"
+	"github.com/jmoiron/sqlx"
 	"github.com/justinas/alice"
 	_ "github.com/lib/pq"
 )
 
 type appContext struct {
-	db *gorm.DB
+	db *sqlx.DB
 }
 
 func main() {
-	db, err := gorm.Open("postgres", "user=desmondmcnamee dbname=populr sslmode=disable")
+	db, err := sqlx.Connect("postgres", "user=desmondmcnamee dbname=populr sslmode=disable")
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	defer db.Close()
 
 	log.Println("Setting up database..")
-	dbSetup(&db)
+	dbSetup(db)
 
-	appC := appContext{&db}
+	appC := appContext{db}
 
 	commonHandlers := alice.New(context.ClearHandler, loggingHandler, recoverHandler, acceptHandler)
 	loggedInCommonHandlers := commonHandlers.Append(contentTypeHandler)
@@ -33,14 +33,27 @@ func main() {
 	router := NewRouter()
 	router.Get("/user/:id", commonHandlers.ThenFunc(appC.getUserHandler))
 	router.Get("/followers", loggedInCommonHandlers.ThenFunc(appC.getUserFollowersHandler))
+	router.Get("/following", loggedInCommonHandlers.ThenFunc(appC.getUsersFollowingHandler))
 	router.Get("/users", commonHandlers.ThenFunc(appC.getUsersHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(UserResource{})).ThenFunc(appC.createUserHandler))
-	router.Post("/follow/:userid", loggedInCommonHandlers.ThenFunc(appC.followUserHandler))
+	router.Post("/follow/:id", loggedInCommonHandlers.ThenFunc(appC.followUserHandler))
 
 	log.Println("Listening...")
 	http.ListenAndServe(":8080", router)
 }
 
-func dbSetup(db *gorm.DB) {
-	db.AutoMigrate(&User{}) // Creates a table if it doesn't exist; updates the table if the struct changes.
+var schema = `
+CREATE TABLE users (
+	id SERIAL NOT NULL PRIMARY KEY,
+    username text,
+    password text
+);
+
+CREATE TABLE user_followers (
+      user_id    int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE, 
+      follower_id int REFERENCES users (id) ON UPDATE CASCADE
+)`
+
+func dbSetup(db *sqlx.DB) {
+	db.Exec(schema)
 }
