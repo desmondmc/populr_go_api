@@ -76,7 +76,7 @@ func userIdHandler(next http.Handler) http.Handler {
 		}
 
 		if next != nil {
-			context.Set(r, "xkey", key)
+			context.Set(r, "x-key", key)
 			next.ServeHTTP(w, r)
 		}
 	}

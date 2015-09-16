@@ -9,23 +9,33 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// Respond
+
+func respond(w http.ResponseWriter, r *http.Request, status int, data interface{}) {
+	if obj, ok := data.(Public); ok {
+		data = obj.Public()
+	}
+
+	w.Header().Set("Content-Type", "application/vnd.api+json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(&Resource{Data: data})
+}
+
 // Create and Retrieve Users.
 
 func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	var users []User
 	c.db.Select(&users, "SELECT * FROM users ORDER BY id ASC")
 
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	json.NewEncoder(w).Encode(&UsersResource{Data: users})
+	respond(w, r, 201, UsersResource{Users: users})
 }
 
 func (c *appContext) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	params := context.Get(r, "params").(httprouter.Params)
 	var user User
-	c.db.Get(&user, "SELECT * FROM users WHERE username=$1", params.ByName("id"))
+	c.db.Get(&user, "SELECT * FROM users WHERE id=$1", params.ByName("id"))
 
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	json.NewEncoder(w).Encode(&UserResource{Data: user})
+	respond(w, r, 201, user)
 }
 
 func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -50,9 +60,7 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	var newUser User
 	c.db.Get(&newUser, "SELECT * FROM users WHERE username=$1", user.Username)
 
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	w.WriteHeader(201)
-	json.NewEncoder(w).Encode(&UserResource{Data: newUser})
+	respond(w, r, 201, newUser)
 }
 
 // Followers
@@ -72,8 +80,7 @@ func (c *appContext) getUserFollowersHandler(w http.ResponseWriter, r *http.Requ
 
 	c.db.Select(&users, userfollowers, userId)
 
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	json.NewEncoder(w).Encode(UsersResource{Data: users})
+	respond(w, r, 201, UsersResource{Users: users})
 }
 
 const usersFollowing = `
@@ -91,9 +98,16 @@ func (c *appContext) getUsersFollowingHandler(w http.ResponseWriter, r *http.Req
 
 	c.db.Select(&users, usersFollowing, userId)
 
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	json.NewEncoder(w).Encode(UsersResource{Data: users})
+	respond(w, r, 201, UsersResource{Users: users})
 }
+
+const followingUser = `
+SELECT users.id, users.username FROM users 
+JOIN user_followers 
+ON user_followers.follower_id=users.id 
+WHERE user_followers.user_id=$1 
+AND user_followers.follower_id=$2
+`
 
 func (c *appContext) followUserHandler(w http.ResponseWriter, r *http.Request) {
 	params := context.Get(r, "params").(httprouter.Params)
@@ -102,6 +116,16 @@ func (c *appContext) followUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	userToFollowId := params.ByName("id")
 	userId := r.Header.Get("x-key")
+
+	if userToFollowId == userId {
+		WriteError(w, ErrCannotFollowSelf)
+		return
+	}
+
+	if c.alreadyFollowingUser(userId, userToFollowId) == true {
+		WriteError(w, ErrAlreadyFollowing)
+		return
+	}
 
 	c.db.Get(&userToFollow, "SELECT * FROM users WHERE id=$1", userToFollowId)
 	c.db.Get(&user, "SELECT * FROM users WHERE id=$1", userId)
@@ -118,7 +142,37 @@ func (c *appContext) followUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	w.WriteHeader(201)
-	json.NewEncoder(w).Encode(user)
+	respond(w, r, 204, nil)
+}
+
+func (c *appContext) unfollowUserHandler(w http.ResponseWriter, r *http.Request) {
+	params := context.Get(r, "params").(httprouter.Params)
+
+	userIdToUnfollow := params.ByName("id")
+	userId := r.Header.Get("x-key")
+
+	if c.alreadyFollowingUser(userId, userIdToUnfollow) == false {
+		WriteError(w, ErrNotFollowingUser)
+		return
+	}
+
+	tx := c.db.MustBegin()
+	c.db.MustExec("DELETE FROM user_followers WHERE user_followers.user_id=$1 AND user_followers.follower_id=$2", userIdToUnfollow, userId)
+	if tx.Commit() != nil {
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	respond(w, r, 204, nil)
+}
+
+func (c *appContext) alreadyFollowingUser(userId, followingId string) bool {
+	var userToCheck User
+	c.db.Get(&userToCheck, followingUser, userId, followingId)
+
+	if userToCheck.Id != 0 {
+		return true
+	}
+
+	return false
 }

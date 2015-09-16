@@ -37,6 +37,7 @@ func main() {
 	router.Get("/users", commonHandlers.ThenFunc(appC.getUsersHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(UserResource{})).ThenFunc(appC.createUserHandler))
 	router.Post("/follow/:id", loggedInCommonHandlers.ThenFunc(appC.followUserHandler))
+	router.Delete("/unfollow/:id", loggedInCommonHandlers.ThenFunc(appC.unfollowUserHandler))
 
 	log.Println("Listening...")
 	http.ListenAndServe(":8080", router)
