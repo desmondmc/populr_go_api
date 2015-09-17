@@ -26,6 +26,35 @@ func (c *appContext) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	Respond(w, r, 201, user)
 }
 
+func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
+	body := context.Get(r, "body").(*UserResource)
+	user := body.Data
+
+	// Check if this username is already taken.
+	var savedUser User
+	err := c.db.Get(&savedUser, "SELECT * FROM users WHERE username=$1", user.Username)
+
+	if err != nil {
+		log.Println("Error finding user: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	// User doesn't exist.
+	if savedUser.Id == 0 {
+		WriteError(w, ErrInvalidLogin)
+		return
+	}
+
+	// Password is incorrect.
+	if savedUser.Password != user.Password {
+		WriteError(w, ErrInvalidLogin)
+		return
+	}
+
+	Respond(w, r, 201, savedUser)
+}
+
 // Creates a user.
 func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	body := context.Get(r, "body").(*UserResource)
@@ -39,9 +68,7 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx := c.db.MustBegin()
-	tx.MustExec("INSERT INTO users (username, password) VALUES ($1, $2)", user.Username, user.Password)
-	err := tx.Commit()
+	_, err := c.db.Exec("INSERT INTO users (username, password) VALUES ($1, $2)", user.Username, user.Password)
 	if err != nil {
 		log.Println("Error creating user: ", err)
 		WriteError(w, ErrInternalServer)

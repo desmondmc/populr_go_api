@@ -33,4 +33,5 @@ var (
 	ErrAlreadyFollowing     = &Error{"already_following_user", 409, "Can't follow someone twice", "You tried to follow someone twice. Don't do that."}
 	ErrFollowing            = &Error{"following_error", 409, "Following Error", "Either you or the the person you are trying to follow do not exist. Strange."}
 	ErrNoXKey               = &Error{"no_x_key", 409, "No x-key value in header", "HTTP x-key needs to be set for this request."}
+	ErrInvalidLogin         = &Error{"invalid_login", 409, "Invalid Login", "The username or password is incorrect."}
 )

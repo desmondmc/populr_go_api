@@ -51,6 +51,7 @@ func main() {
 	router.Get("/searchusers/:term", loggedInCommonHandlers.ThenFunc(appC.searchUsersHandler))
 	router.Get("/messages", loggedInCommonHandlers.ThenFunc(appC.getMessagesHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(UserResource{})).ThenFunc(appC.createUserHandler))
+	router.Post("/login", commonHandlers.Append(contentTypeHandler, bodyHandler(UserResource{})).ThenFunc(appC.createUserHandler))
 	router.Post("/follow/:id", loggedInCommonHandlers.ThenFunc(appC.followUserHandler))
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
 	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
