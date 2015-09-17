@@ -36,9 +36,10 @@ func main() {
 	router.Get("/following", loggedInCommonHandlers.ThenFunc(appC.getUsersFollowingHandler))
 	router.Get("/users", commonHandlers.ThenFunc(appC.getUsersHandler))
 	router.Get("/searchusers/:term", loggedInCommonHandlers.ThenFunc(appC.searchUsersHandler))
+	router.Get("/messages", loggedInCommonHandlers.ThenFunc(appC.getMessagesHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(UserResource{})).ThenFunc(appC.createUserHandler))
 	router.Post("/follow/:id", loggedInCommonHandlers.ThenFunc(appC.followUserHandler))
-	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(MessageResource{})).ThenFunc(appC.postMessageHandler))
+	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
 	router.Delete("/unfollow/:id", loggedInCommonHandlers.ThenFunc(appC.unfollowUserHandler))
 
 	log.Println("Listening...")

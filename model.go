@@ -50,14 +50,26 @@ func (users UsersResource) Public() interface{} {
 
 type Message struct {
 	Id        int64     `db:"id" json:"id"`
-	FromUser  int       `json:"from_user"`
-	ToUsers   []int     `json:"to_users"`
 	Message   string    `db:"message" json:"message"`
 	Type      string    `db:"type" json:"type"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
 
+type RecieveMessage struct {
+	Message
+	ToUsers []int `json:"to_users"`
+}
+
+type ResponseMessage struct {
+	Message
+	FromUsername string `db:"username" json:"from_username"`
+}
+
 // This structure is used for decoding recieved user data json
-type MessageResource struct {
-	Data Message `json:"data"`
+type RecieveMessageResource struct {
+	Data RecieveMessage `json:"data"`
+}
+
+type ResponseMessageResource struct {
+	Data ResponseMessage `json:"data"`
 }
