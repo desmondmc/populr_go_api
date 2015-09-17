@@ -23,13 +23,14 @@ func main() {
 	}
 
 	portString := ":" + os.Getenv("PORT")
-	dokku_db := os.Getenv("DATABASE_URL")
+	dokku_db := "postgres://root:AdWNMo0dvsV0CVhK@172.17.42.1:32768/db"
 
 	log.Println("Database String: ", dokku_db)
 
 	db, err := sqlx.Connect("postgres", dokku_db)
 	if err != nil {
 		fmt.Printf("sql.Open error: %v\n", err)
+		return
 	}
 	defer db.Close()
 
