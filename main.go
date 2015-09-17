@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -22,11 +23,11 @@ func main() {
 	}
 
 	portString := ":" + os.Getenv("PORT")
-	user := os.Getenv("USER")
+	dokku_db := os.Getenv("DATABASE_URL")
 
-	db, err := sqlx.Connect("postgres", "user="+user+" dbname=populr sslmode=disable")
+	db, err := sqlx.Connect("postgres", dokku_db)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Printf("sql.Open error: %v\n", err)
 	}
 	defer db.Close()
 
