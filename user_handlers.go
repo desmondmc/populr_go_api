@@ -41,7 +41,9 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	tx := c.db.MustBegin()
 	tx.MustExec("INSERT INTO users (username, password) VALUES ($1, $2)", user.Username, user.Password)
-	if tx.Commit() != nil {
+	err := tx.Commit()
+	if err != nil {
+		log.Println("Error creating user: ", err)
 		WriteError(w, ErrInternalServer)
 		return
 	}
