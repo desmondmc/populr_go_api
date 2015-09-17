@@ -39,6 +39,7 @@ func main() {
 	router.Get("/messages", loggedInCommonHandlers.ThenFunc(appC.getMessagesHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(UserResource{})).ThenFunc(appC.createUserHandler))
 	router.Post("/follow/:id", loggedInCommonHandlers.ThenFunc(appC.followUserHandler))
+	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
 	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
 	router.Delete("/unfollow/:id", loggedInCommonHandlers.ThenFunc(appC.unfollowUserHandler))
 
@@ -68,9 +69,9 @@ CREATE TABLE messages (
 
 CREATE TABLE message_to_users (
       user_id    int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE, 
-      message_id int REFERENCES messages (id) ON UPDATE CASCADE ON DELETE CASCADE
+      message_id int REFERENCES messages (id) ON UPDATE CASCADE ON DELETE CASCADE,
+      read bool default false
 );
-
 `
 
 func dbSetup(db *sqlx.DB) {
