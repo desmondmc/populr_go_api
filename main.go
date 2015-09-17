@@ -25,6 +25,8 @@ func main() {
 	portString := ":" + os.Getenv("PORT")
 	dokku_db := os.Getenv("DATABASE_URL")
 
+	log.Println("Database String: ", dokku_db)
+
 	db, err := sqlx.Connect("postgres", dokku_db)
 	if err != nil {
 		fmt.Printf("sql.Open error: %v\n", err)
