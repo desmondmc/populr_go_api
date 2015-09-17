@@ -65,7 +65,6 @@ type ResponseMessage struct {
 	FromUsername string `db:"username" json:"from_username"`
 }
 
-// This structure is used for decoding recieved user data json
 type RecieveMessageResource struct {
 	Data RecieveMessage `json:"data"`
 }
