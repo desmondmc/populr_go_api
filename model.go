@@ -1,8 +1,12 @@
 package main
 
+import "time"
+
 type Public interface {
 	Public() interface{}
 }
+
+/************ User Model **************/
 
 type User struct {
 	Id       int64  `db:"id" json:"id"`
@@ -40,4 +44,20 @@ func (users UsersResource) Public() interface{} {
 	}
 
 	return publicUsers
+}
+
+/************ Message Model **************/
+
+type Message struct {
+	Id        int64     `db:"id" json:"id"`
+	FromUser  int       `json:"from_user"`
+	ToUsers   []int     `json:"to_users"`
+	Message   string    `db:"message" json:"message"`
+	Type      string    `db:"type" json:"type"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+}
+
+// This structure is used for decoding recieved user data json
+type MessageResource struct {
+	Data Message `json:"data"`
 }
