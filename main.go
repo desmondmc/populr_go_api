@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/context"
 	"github.com/jmoiron/sqlx"
@@ -15,7 +16,15 @@ type appContext struct {
 }
 
 func main() {
-	db, err := sqlx.Connect("postgres", "user=desmondmcnamee dbname=populr sslmode=disable")
+	if os.Getenv("PORT") == "" {
+		log.Println("Please set PORT env variable.")
+		return
+	}
+
+	portString := ":" + os.Getenv("PORT")
+	user := os.Getenv("USER")
+
+	db, err := sqlx.Connect("postgres", "user="+user+" dbname=populr sslmode=disable")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -44,7 +53,7 @@ func main() {
 	router.Delete("/unfollow/:id", loggedInCommonHandlers.ThenFunc(appC.unfollowUserHandler))
 
 	log.Println("Listening...")
-	http.ListenAndServe(":8080", router)
+	http.ListenAndServe(portString, router)
 }
 
 var schema = `
