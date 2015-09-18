@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,17 +18,22 @@ type appContext struct {
 }
 
 func main() {
+
+	database := flag.String("db", "postgres://root:AdWNMo0dvsV0CVhK@172.17.42.1:32768/db", "The URL of the database")
+
 	if os.Getenv("PORT") == "" {
 		log.Println("Please set PORT env variable.")
 		return
 	}
 
 	portString := ":" + os.Getenv("PORT")
-	dokku_db := "postgres://root:AdWNMo0dvsV0CVhK@172.17.42.1:32768/db"
+	urlTest := os.Getenv("DATABASE_URL")
+	log.Println("Database env variable: ", urlTest)
 
-	log.Println("Database String: ", dokku_db)
+	flag.Parse()
+	log.Println("Database String: ", *database)
 
-	db, err := sqlx.Connect("postgres", dokku_db)
+	db, err := sqlx.Connect("postgres", *database)
 	if err != nil {
 		fmt.Printf("sql.Open error: %v\n", err)
 		return
