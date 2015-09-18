@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,22 +17,18 @@ type appContext struct {
 }
 
 func main() {
-
-	database := flag.String("db", "postgres://root:AdWNMo0dvsV0CVhK@172.17.42.1:32768/db", "The URL of the database")
-
+	// Get and set env variables
+	portString := ":" + os.Getenv("PORT")
 	if os.Getenv("PORT") == "" {
-		log.Println("Please set PORT env variable.")
-		return
+		portString = ":8080"
+	}
+	database := os.Getenv("DATABASE_URL")
+	if os.Getenv("DATABASE_URL") == "" {
+		database = "user=desmondmcnamee dbname=populr sslmode=disable"
 	}
 
-	portString := ":" + os.Getenv("PORT")
-	urlTest := os.Getenv("DATABASE_URL")
-	log.Println("Database env variable: ", urlTest)
-
-	flag.Parse()
-	log.Println("Database String: ", *database)
-
-	db, err := sqlx.Connect("postgres", *database)
+	// Setup database
+	db, err := sqlx.Connect("postgres", database)
 	if err != nil {
 		fmt.Printf("sql.Open error: %v\n", err)
 		return
@@ -43,11 +38,12 @@ func main() {
 	log.Println("Setting up database..")
 	dbSetup(db)
 
+	// Setup middleware
 	appC := appContext{db}
-
 	commonHandlers := alice.New(context.ClearHandler, loggingHandler, recoverHandler, acceptHandler)
 	loggedInCommonHandlers := commonHandlers.Append(contentTypeHandler)
 
+	// Setup Routes
 	log.Println("Setting up routes...")
 	router := NewRouter()
 	router.Get("/user/:id", commonHandlers.ThenFunc(appC.getUserHandler))
@@ -56,8 +52,8 @@ func main() {
 	router.Get("/users", commonHandlers.ThenFunc(appC.getUsersHandler))
 	router.Get("/searchusers/:term", loggedInCommonHandlers.ThenFunc(appC.searchUsersHandler))
 	router.Get("/messages", loggedInCommonHandlers.ThenFunc(appC.getMessagesHandler))
-	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(UserResource{})).ThenFunc(appC.createUserHandler))
-	router.Post("/login", commonHandlers.Append(contentTypeHandler, bodyHandler(UserResource{})).ThenFunc(appC.createUserHandler))
+	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.createUserHandler))
+	router.Post("/login", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.loginUserHandler))
 	router.Post("/follow/:id", loggedInCommonHandlers.ThenFunc(appC.followUserHandler))
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
 	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))

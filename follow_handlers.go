@@ -19,13 +19,13 @@ WHERE user_followers.user_id=$1
 
 func (c *appContext) getUserFollowersHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
-	var users []User
+	var users []ResponseUser
 
 	log.Println("userId: ", userId)
 
 	c.db.Select(&users, findUserfollowers, userId)
 
-	Respond(w, r, 201, UsersResource{Users: users})
+	Respond(w, r, 201, users)
 }
 
 const findUsersFollowing = `
@@ -37,19 +37,17 @@ WHERE user_followers.follower_id=$1
 
 func (c *appContext) getUsersFollowingHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
-	var users []User
+	var users []ResponseUser
 
 	log.Println("userId: ", userId)
 
 	c.db.Select(&users, findUsersFollowing, userId)
 
-	Respond(w, r, 201, UsersResource{Users: users})
+	Respond(w, r, 201, users)
 }
 
 func (c *appContext) followUserHandler(w http.ResponseWriter, r *http.Request) {
 	params := context.Get(r, "params").(httprouter.Params)
-	var userToFollow User
-	var user User
 
 	userToFollowId := params.ByName("id")
 	userId := r.Header.Get("x-key")
@@ -64,10 +62,14 @@ func (c *appContext) followUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c.db.Get(&userToFollow, "SELECT * FROM users WHERE id=$1", userToFollowId)
-	c.db.Get(&user, "SELECT * FROM users WHERE id=$1", userId)
+	var userToFollow User
+	var user User
 
-	if userToFollow.Id == 0 || user.Id == 0 {
+	err := c.db.Get(&userToFollow, "SELECT id, username FROM users WHERE id=$1", userToFollowId)
+	err = c.db.Get(&user, "SELECT id, username FROM users WHERE id=$1", userId)
+
+	if err != nil || userToFollow.Id == 0 || user.Id == 0 {
+		log.Println("Error finding user: ", err)
 		WriteError(w, ErrFollowing)
 		return
 	}

@@ -11,27 +11,30 @@ import (
 
 // Returns all users.
 func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
-	var users []User
-	c.db.Select(&users, "SELECT * FROM users ORDER BY id ASC")
-
-	Respond(w, r, 201, UsersResource{Users: users})
+	var users []ResponseUser
+	err := c.db.Select(&users, "SELECT id, username FROM users ORDER BY id ASC")
+	if err != nil {
+		log.Println("Error finding users: ", err)
+		WriteError(w, ErrInternalServer)
+	}
+	Respond(w, r, 201, users)
 }
 
 // Returns a single user.
 func (c *appContext) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	params := context.Get(r, "params").(httprouter.Params)
-	var user User
-	c.db.Get(&user, "SELECT * FROM users WHERE id=$1", params.ByName("id"))
+	var user ResponseUser
+	c.db.Get(&user, "SELECT id, username FROM users WHERE id=$1", params.ByName("id"))
 
 	Respond(w, r, 201, user)
 }
 
 func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
-	body := context.Get(r, "body").(*UserResource)
+	body := context.Get(r, "body").(*RecieveUserResource)
 	user := body.Data
 
 	// Check if this username is already taken.
-	var savedUser User
+	var savedUser RecieveUser
 	err := c.db.Get(&savedUser, "SELECT * FROM users WHERE username=$1", user.Username)
 
 	if err != nil {
@@ -52,16 +55,18 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Respond(w, r, 201, savedUser)
+	userToReturn := ResponseUser{User: savedUser.User}
+
+	Respond(w, r, 201, userToReturn)
 }
 
 // Creates a user.
 func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
-	body := context.Get(r, "body").(*UserResource)
+	body := context.Get(r, "body").(*RecieveUserResource)
 	user := body.Data
 
 	// Check if this username is already taken.
-	users := []User{}
+	var users []RecieveUser
 	c.db.Select(&users, "SELECT * FROM users WHERE username=$1", user.Username)
 	if len(users) != 0 {
 		WriteError(w, ErrUserExists)
@@ -75,8 +80,11 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var newUser User
-	c.db.Get(&newUser, "SELECT * FROM users WHERE username=$1", user.Username)
+	var newUser ResponseUser
+	err = c.db.Get(&newUser, "SELECT id, username FROM users WHERE username=$1", user.Username)
+	if err != nil {
+		log.Println("User created but there was an error on return: ", err)
+	}
 
 	Respond(w, r, 201, newUser)
 }
@@ -89,8 +97,8 @@ func (c *appContext) searchUsersHandler(w http.ResponseWriter, r *http.Request) 
 
 	log.Println("Search Term: ", searchTerm)
 
-	var users []User
-	c.db.Select(&users, "SELECT * FROM users WHERE users.username LIKE $1", searchTerm)
+	var users []ResponseUser
+	c.db.Select(&users, "SELECT id, username FROM users WHERE users.username LIKE $1", searchTerm)
 
 	Respond(w, r, 201, users)
 }

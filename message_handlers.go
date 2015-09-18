@@ -78,5 +78,5 @@ func (c *appContext) readMessageHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	Respond(w, r, 201, nil)
+	Respond(w, r, 204, nil)
 }
