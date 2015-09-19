@@ -45,7 +45,7 @@ type Message struct {
 
 type RecieveMessage struct {
 	Message
-	ToUsers []int `json:"to_users"`
+	ToUsers []int64 `json:"to_users"`
 }
 
 type ResponseMessage struct {

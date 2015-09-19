@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -21,9 +22,15 @@ func (c *appContext) postMessageHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	log.Println("messageId: ", newMessageId)
+	toUsersIds, err := c.getToUsersForMessageType(message.Type, userId, message)
+	if err != nil {
+		log.Println("Error: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
 	tx := c.db.MustBegin()
-	for _, toUserId := range message.ToUsers {
+	for _, toUserId := range toUsersIds {
 		log.Println("toUser: ", toUserId)
 		tx.MustExec("INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)", toUserId, newMessageId)
 	}
@@ -33,6 +40,32 @@ func (c *appContext) postMessageHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	Respond(w, r, 204, nil)
+}
+
+func (c *appContext) getToUsersForMessageType(messageType, userId string, message RecieveMessage) ([]int64, error) {
+	var users []ResponseUser
+
+	if messageType == "public" {
+		// Get all user's followers IDs those are the ToUsers
+		err := c.db.Select(&users, findUserfollowers, userId)
+		if err != nil {
+			return nil, err
+		}
+
+		var toUserIds []int64
+		userCount := len(users)
+		toUserIds = make([]int64, userCount, userCount)
+		for index, toUser := range users {
+			toUserIds[index] = toUser.Id
+		}
+		return toUserIds, nil
+	}
+
+	if messageType == "direct" {
+		return message.ToUsers, nil
+	}
+
+	return nil, errors.New("Invalid message type")
 }
 
 const findUserMessages = `
