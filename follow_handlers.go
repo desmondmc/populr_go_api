@@ -28,7 +28,7 @@ func (c *appContext) getUserFollowersHandler(w http.ResponseWriter, r *http.Requ
 	Respond(w, r, 201, users)
 }
 
-const findUsersFollowing = `
+const FindUsersFollowing = `
 SELECT users.id, users.username FROM users 
 JOIN user_followers 
 ON user_followers.user_id=users.id 
@@ -41,7 +41,7 @@ func (c *appContext) getUsersFollowingHandler(w http.ResponseWriter, r *http.Req
 
 	log.Println("userId: ", userId)
 
-	c.db.Select(&users, findUsersFollowing, userId)
+	c.db.Select(&users, FindUsersFollowing, userId)
 
 	Respond(w, r, 201, users)
 }

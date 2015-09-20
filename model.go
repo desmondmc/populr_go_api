@@ -24,6 +24,7 @@ type RecieveUser struct {
 
 type ResponseUser struct {
 	User
+	Following bool
 }
 
 type RecieveUserResource struct {

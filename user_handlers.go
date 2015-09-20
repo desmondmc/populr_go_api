@@ -11,7 +11,7 @@ import (
 
 // Returns all users.
 func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
-	var users []ResponseUser
+	var users []User
 	err := c.db.Select(&users, "SELECT id, username FROM users ORDER BY id ASC")
 	if err != nil {
 		log.Println("Error finding users: ", err)
