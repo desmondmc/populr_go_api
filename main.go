@@ -22,10 +22,10 @@ func main() {
 	if os.Getenv("PORT") == "" {
 		portString = ":8080"
 	}
-	database := "postgres://root:BD5Vo8ABPN7v2aB6@172.17.42.1:32768/db" //os.Getenv("DATABASE_URL")
-	// if os.Getenv("DATABASE_URL") == "" {
-	// 	database = "user=desmondmcnamee dbname=populr sslmode=disable"
-	// }
+	database := os.Getenv("DATABASE_URL")
+	if os.Getenv("DATABASE_URL") == "" {
+		database = "user=desmondmcnamee dbname=populr sslmode=disable"
+	}
 
 	// Setup database
 	db, err := sqlx.Connect("postgres", database)
