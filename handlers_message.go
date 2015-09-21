@@ -76,7 +76,7 @@ JOIN users
 ON users.id=messages.from_user_id 
 WHERE message_to_users.user_id=$1
 AND message_to_users.read=FALSE
-ORDER BY created_at ASC
+ORDER BY created_at DESC
 `
 
 func (c *appContext) getMessagesHandler(w http.ResponseWriter, r *http.Request) {
