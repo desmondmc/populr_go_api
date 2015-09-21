@@ -10,6 +10,8 @@ import (
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/julienschmidt/httprouter"
 )
 
+const PopulrUserId = "3"
+
 // Returns all users.
 func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
@@ -105,6 +107,16 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	err = c.db.Get(&newUser, "SELECT id, username FROM users WHERE username=$1", user.Username)
 	if err != nil {
 		log.Println("User created but there was an error on return: ", err)
+	}
+
+	newUserId := fmt.Sprintf("%d", newUser.Id)
+
+	log.Println("New user: ", newUserId, "Populr: ", PopulrUserId)
+	err = c.addFriend(newUserId, PopulrUserId)
+	if err != nil {
+		log.Println("Error adding Populr user: ", err)
+		WriteError(w, ErrInternalServer)
+		return
 	}
 
 	Respond(w, r, 201, newUser)

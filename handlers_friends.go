@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -76,27 +77,36 @@ func (c *appContext) friendUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err := c.addFriend(userId, userToFriendId)
+	if err != nil {
+		WriteError(w, ErrInternalServer)
+		log.Println("Error friending user: ", err)
+		return
+	}
+
+	Respond(w, r, 204, nil)
+}
+
+func (c *appContext) addFriend(sourceId, targetId string) (err error) {
 	var userToFriend User
 	var user User
 
-	err := c.db.Get(&userToFriend, "SELECT id, username FROM users WHERE id=$1", userToFriendId)
-	err = c.db.Get(&user, "SELECT id, username FROM users WHERE id=$1", userId)
+	err = c.db.Get(&userToFriend, "SELECT id, username FROM users WHERE id=$1", targetId)
+	err = c.db.Get(&user, "SELECT id, username FROM users WHERE id=$1", sourceId)
 
 	if err != nil || userToFriend.Id == 0 || user.Id == 0 {
 		log.Println("Error finding user: ", err)
-		WriteError(w, ErrFriending)
-		return
+		return err
 	}
 
 	tx := c.db.MustBegin()
 	tx.MustExec("INSERT INTO friends (user_id, friend_id) VALUES ($1, $2)", user.Id, userToFriend.Id)
 	tx.MustExec("INSERT INTO friends (user_id, friend_id) VALUES ($1, $2)", userToFriend.Id, user.Id)
 	if tx.Commit() != nil {
-		WriteError(w, ErrInternalServer)
-		return
+		return errors.New("error inserting friend.")
 	}
 
-	Respond(w, r, 204, nil)
+	return nil
 }
 
 func (c *appContext) unfriendUserHandler(w http.ResponseWriter, r *http.Request) {
