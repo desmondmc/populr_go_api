@@ -46,8 +46,8 @@ func (c *appContext) getToUsersForMessageType(messageType, userId string, messag
 	var users []ResponseUser
 
 	if messageType == "public" {
-		// Get all user's followers IDs those are the ToUsers
-		err := c.db.Select(&users, findUserfollowers, userId)
+		// Get all user's friends IDs those are the ToUsers
+		err := c.db.Select(&users, findUserFriends, userId)
 		if err != nil {
 			return nil, err
 		}

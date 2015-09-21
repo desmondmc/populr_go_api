@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,22 +12,42 @@ import (
 
 // Returns all users.
 func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
-	var users []User
-	err := c.db.Select(&users, "SELECT id, username FROM users ORDER BY id ASC")
+	userId := r.Header.Get("x-key")
+	var users []ResponseUser
+	err := c.db.Select(&users, "SELECT id, username FROM users ORDER BY username ASC")
 	if err != nil {
 		log.Println("Error finding users: ", err)
 		WriteError(w, ErrInternalServer)
 	}
-	Respond(w, r, 201, users)
+
+	detailedResponseUsers, err := c.MakeDetailResponseUsers(&users, userId)
+	if err != nil {
+		log.Println("Error searching on users: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	Respond(w, r, 201, detailedResponseUsers)
 }
 
 // Returns a single user.
 func (c *appContext) getUserHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("x-key")
 	params := context.Get(r, "params").(httprouter.Params)
 	var user ResponseUser
-	c.db.Get(&user, "SELECT id, username FROM users WHERE id=$1", params.ByName("id"))
+	err := c.db.Get(&user, "SELECT id, username FROM users WHERE id=$1", params.ByName("id"))
+	if err == sql.ErrNoRows {
+		WriteError(w, ErrNoUserForId)
+		return
+	}
+	detailedResponseUsers, err := c.MakeDetailResponseUsers(&[]ResponseUser{user}, userId)
+	if err != nil {
+		log.Println("Error searching on users: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
 
-	Respond(w, r, 201, user)
+	Respond(w, r, 201, detailedResponseUsers)
 }
 
 func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,15 +58,15 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 	var savedUser RecieveUser
 	err := c.db.Get(&savedUser, "SELECT * FROM users WHERE username=$1", user.Username)
 
-	if err != nil {
-		log.Println("Error finding user: ", err)
-		WriteError(w, ErrInternalServer)
+	// User doesn't exist.
+	if err == sql.ErrNoRows {
+		WriteError(w, ErrInvalidLogin)
 		return
 	}
 
-	// User doesn't exist.
-	if savedUser.Id == 0 {
-		WriteError(w, ErrInvalidLogin)
+	if err != nil {
+		log.Println("Error finding user: ", err)
+		WriteError(w, ErrInternalServer)
 		return
 	}
 
@@ -91,6 +112,7 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 // Returns all users that match search
 func (c *appContext) searchUsersHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("x-key")
 	params := context.Get(r, "params").(httprouter.Params)
 	searchTerm := params.ByName("term")
 	searchTerm = fmt.Sprint(searchTerm, "%")
@@ -98,7 +120,14 @@ func (c *appContext) searchUsersHandler(w http.ResponseWriter, r *http.Request) 
 	log.Println("Search Term: ", searchTerm)
 
 	var users []ResponseUser
-	c.db.Select(&users, "SELECT id, username FROM users WHERE users.username LIKE $1", searchTerm)
+	c.db.Select(&users, "SELECT id, username FROM users WHERE users.username LIKE $1 AND users.id != $2 ORDER BY username ASC", searchTerm, userId)
 
-	Respond(w, r, 201, users)
+	detailedResponseUsers, err := c.MakeDetailResponseUsers(&users, userId)
+	if err != nil {
+		log.Println("Error searching on users: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	Respond(w, r, 201, detailedResponseUsers)
 }

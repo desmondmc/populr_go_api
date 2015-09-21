@@ -24,15 +24,15 @@ type RecieveUser struct {
 
 type ResponseUser struct {
 	User
-	Following bool
+}
+
+type DetailResponseUser struct {
+	User
+	Friends bool `json:"friends"`
 }
 
 type RecieveUserResource struct {
 	Data RecieveUser `json:"data"`
-}
-
-type ResponseUserResource struct {
-	Data ResponseUser `json:"data"`
 }
 
 /************ Message Model **************/
@@ -56,8 +56,4 @@ type ResponseMessage struct {
 
 type RecieveMessageResource struct {
 	Data RecieveMessage `json:"data"`
-}
-
-type ResponseMessageResource struct {
-	Data ResponseMessage `json:"data"`
 }

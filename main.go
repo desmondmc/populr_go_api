@@ -47,17 +47,16 @@ func main() {
 	log.Println("Setting up routes...")
 	router := NewRouter()
 	router.Get("/user/:id", commonHandlers.ThenFunc(appC.getUserHandler))
-	router.Get("/followers", loggedInCommonHandlers.ThenFunc(appC.getUserFollowersHandler))
-	router.Get("/following", loggedInCommonHandlers.ThenFunc(appC.getUsersFollowingHandler))
+	router.Get("/friends", loggedInCommonHandlers.ThenFunc(appC.getUserFriendsHandler))
 	router.Get("/users", commonHandlers.ThenFunc(appC.getUsersHandler))
 	router.Get("/searchusers/:term", loggedInCommonHandlers.ThenFunc(appC.searchUsersHandler))
 	router.Get("/messages", loggedInCommonHandlers.ThenFunc(appC.getMessagesHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.createUserHandler))
 	router.Post("/login", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.loginUserHandler))
-	router.Post("/follow/:id", loggedInCommonHandlers.ThenFunc(appC.followUserHandler))
+	router.Post("/friend/:id", loggedInCommonHandlers.ThenFunc(appC.friendUserHandler))
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
 	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
-	router.Delete("/unfollow/:id", loggedInCommonHandlers.ThenFunc(appC.unfollowUserHandler))
+	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
@@ -70,9 +69,9 @@ CREATE TABLE users (
     password text
 );
 
-CREATE TABLE user_followers (
+CREATE TABLE friends (
       user_id    int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE, 
-      follower_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE
+      friend_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE messages (
