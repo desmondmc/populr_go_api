@@ -57,3 +57,14 @@ type ResponseMessage struct {
 type RecieveMessageResource struct {
 	Data RecieveMessage `json:"data"`
 }
+
+/************ Feedback Model **************/
+
+type Feedback struct {
+	Id       int64  `db:"id"`
+	Feedback string `db:"feedback" json:"feedback"`
+}
+
+type RecieveFeedbackResource struct {
+	Data Feedback `json:"data"`
+}

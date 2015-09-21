@@ -56,6 +56,7 @@ func main() {
 	router.Post("/friend/:id", loggedInCommonHandlers.ThenFunc(appC.friendUserHandler))
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
 	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
+	router.Post("/feedback", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveFeedbackResource{})).ThenFunc(appC.postFeedbackHandler))
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 
 	log.Println("Listening...")
@@ -87,13 +88,19 @@ CREATE TABLE message_to_users (
       message_id int REFERENCES messages (id) ON UPDATE CASCADE ON DELETE CASCADE,
       read bool default false
 );
+
+CREATE TABLE feedbacks (
+	id SERIAL NOT NULL PRIMARY KEY,
+	user_id    int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE, 
+    feedback text
+);
 `
 
 var dropAllTables = `
-	DROP TABLE message_to_users, user_followers, messages, users;
+	DROP TABLE message_to_users, friends, messages, users;
 `
 
 func dbSetup(db *sqlx.DB) {
-	//db.MustExec(dropAllTables)
+	db.MustExec(dropAllTables)
 	db.Exec(schema)
 }

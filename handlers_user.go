@@ -131,3 +131,18 @@ func (c *appContext) searchUsersHandler(w http.ResponseWriter, r *http.Request) 
 
 	Respond(w, r, 201, detailedResponseUsers)
 }
+
+func (c *appContext) postFeedbackHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("x-key")
+	body := context.Get(r, "body").(*RecieveFeedbackResource)
+	feedback := body.Data
+
+	_, err := c.db.Exec("INSERT INTO feedbacks (user_id, feedback) VALUES ($1, $2)", userId, feedback.Feedback)
+	if err != nil {
+		log.Println("Error: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	Respond(w, r, 204, nil)
+}
