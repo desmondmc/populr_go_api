@@ -57,6 +57,7 @@ func main() {
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
 	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
 	router.Post("/feedback", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveFeedbackResource{})).ThenFunc(appC.postFeedbackHandler))
+	router.Post("/token/:token", loggedInCommonHandlers.ThenFunc(appC.postDeviceTokenHandler))
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 
 	log.Println("Listening...")
@@ -105,6 +106,6 @@ ALTER TABLE users ADD COLUMN device_token text
 `
 
 func dbSetup(db *sqlx.DB) {
-	db.MustExec(addColumn)
+	//db.MustExec(addColumn)
 	db.Exec(schema)
 }

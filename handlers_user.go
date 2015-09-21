@@ -58,7 +58,7 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if this username is already taken.
 	var savedUser RecieveUser
-	err := c.db.Get(&savedUser, "SELECT * FROM users WHERE username=$1", user.Username)
+	err := c.db.Get(&savedUser, "SELECT id, username, password FROM users WHERE username=$1", user.Username)
 
 	// User doesn't exist.
 	if err == sql.ErrNoRows {
@@ -90,7 +90,7 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if this username is already taken.
 	var users []RecieveUser
-	c.db.Select(&users, "SELECT * FROM users WHERE username=$1", user.Username)
+	c.db.Select(&users, "SELECT id, username, password FROM users WHERE username=$1", user.Username)
 	if len(users) != 0 {
 		WriteError(w, ErrUserExists)
 		return
@@ -152,6 +152,21 @@ func (c *appContext) postFeedbackHandler(w http.ResponseWriter, r *http.Request)
 	_, err := c.db.Exec("INSERT INTO feedbacks (user_id, feedback) VALUES ($1, $2)", userId, feedback.Feedback)
 	if err != nil {
 		log.Println("Error: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	Respond(w, r, 204, nil)
+}
+
+func (c *appContext) postDeviceTokenHandler(w http.ResponseWriter, r *http.Request) {
+	params := context.Get(r, "params").(httprouter.Params)
+	userId := r.Header.Get("x-key")
+	deviceToken := params.ByName("token")
+
+	_, err := c.db.Exec("UPDATE users SET device_token = $1 WHERE id = $2", deviceToken, userId)
+	if err != nil {
+		log.Println("Error setting device token: ", err)
 		WriteError(w, ErrInternalServer)
 		return
 	}
