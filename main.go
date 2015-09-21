@@ -101,6 +101,6 @@ var dropAllTables = `
 `
 
 func dbSetup(db *sqlx.DB) {
-	db.MustExec(dropAllTables)
+	//db.MustExec(dropAllTables)
 	db.Exec(schema)
 }
