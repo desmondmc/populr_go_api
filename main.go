@@ -89,6 +89,11 @@ CREATE TABLE message_to_users (
 );
 `
 
+var dropAllTables = `
+	DROP TABLE message_to_users, user_followers, messages, users;
+`
+
 func dbSetup(db *sqlx.DB) {
+	db.MustExec(dropAllTables)
 	db.Exec(schema)
 }
