@@ -50,7 +50,14 @@ func (c *appContext) getUserFriendsHandler(w http.ResponseWriter, r *http.Reques
 
 	c.db.Select(&users, findUserFriends, userId)
 
-	Respond(w, r, 201, users)
+	detailedResponseUsers, err := c.MakeDetailResponseUsers(&users, userId)
+	if err != nil {
+		log.Println("Error searching on users: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	Respond(w, r, 201, detailedResponseUsers)
 }
 
 func (c *appContext) friendUserHandler(w http.ResponseWriter, r *http.Request) {
