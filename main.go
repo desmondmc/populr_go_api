@@ -67,7 +67,8 @@ var schema = `
 CREATE TABLE users (
 	id SERIAL NOT NULL PRIMARY KEY,
     username text,
-    password text
+    password text,
+    device_token text
 );
 
 CREATE TABLE friends (
@@ -97,10 +98,13 @@ CREATE TABLE feedbacks (
 `
 
 var dropAllTables = `
-	DROP TABLE message_to_users, friends, messages, users;
+	DROP TABLE message_to_users, friends, messages, users, feedbacks;
+`
+var addColumn = `
+ALTER TABLE users ADD COLUMN device_token text
 `
 
 func dbSetup(db *sqlx.DB) {
-	//db.MustExec(dropAllTables)
+	db.MustExec(addColumn)
 	db.Exec(schema)
 }
