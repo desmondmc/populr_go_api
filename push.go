@@ -35,7 +35,7 @@ func (c *appContext) sendPushWithIdAndMessage(id, message, mtype string) {
 
 	log.Println("Sending push to user: ", tokenUser)
 
-	if mtype == "new_message" {
+	if mtype == "new_friend" {
 		message = fmt.Sprintf("%s is your friend!", tokenUser.Username)
 	}
 
