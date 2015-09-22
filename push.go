@@ -16,17 +16,17 @@ func (c *appContext) SendNewDirectMessagePush(userIds []int64) {
 }
 
 func (c *appContext) SendNewFriendPush(userId string) {
-	c.sendPushWithIdAndMessage(userId, "New friend!")
+	c.sendPushWithIdAndMessage(userId, "New friend!", "new_friend")
 }
 
 func (c *appContext) sendNewMessagePush(userIds []int64, message string) {
 	for _, userId := range userIds {
 		idString := fmt.Sprintf("%d", userId)
-		c.sendPushWithIdAndMessage(idString, message)
+		c.sendPushWithIdAndMessage(idString, message, "new_message")
 	}
 }
 
-func (c *appContext) sendPushWithIdAndMessage(id, message string) {
+func (c *appContext) sendPushWithIdAndMessage(id, message, mtype string) {
 	log.Println("Push data - id: ", id)
 	log.Println("id: ", id)
 	log.Println("message: ", message)
@@ -43,7 +43,7 @@ func (c *appContext) sendPushWithIdAndMessage(id, message string) {
 		sendPush(
 			tokenUser.Token,
 			message,
-			"new_message",
+			mtype,
 		)
 	}
 }
