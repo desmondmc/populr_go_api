@@ -64,10 +64,10 @@ func sendPush(token, message, mtype string) {
 		resp := client.Send(pn)
 
 		alert, _ := pn.PayloadString()
-		fmt.Println("Sending Push: ")
-		fmt.Println("  Alert:", alert)
-		fmt.Println("Success:", resp.Success)
-		fmt.Println("  Error:", resp.Error)
+		log.Println("Sending Push: ")
+		log.Println("  Alert:", alert)
+		log.Println("Success:", resp.Success)
+		log.Println("  Error:", resp.Error)
 	}()
 }
 
