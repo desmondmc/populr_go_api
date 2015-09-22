@@ -28,7 +28,7 @@ type ResponseUser struct {
 
 type TokenUser struct {
 	User
-	Token string
+	Token string `db:"device_token"`
 }
 
 type DetailResponseUser struct {
