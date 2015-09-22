@@ -71,9 +71,9 @@ func sendPush(token, message, mtype string) {
 	}()
 }
 
-const CERT_PEM = "./pop-prod-cert.pem"
+const CERT_PEM = "/home/dokku/populr_go_api/pop-prod-cert.pem"
 
-const KEY_PEM = "./pop-prod-key-noenc.pem"
+const KEY_PEM = "/home/dokku/populr_go_api/pop-prod-key-noenc.pem"
 
 const DEV_SERVER = "gateway.sandbox.push.apple.com:2195"
 const PRO_SERVER = "gateway.push.apple.com:2195"
