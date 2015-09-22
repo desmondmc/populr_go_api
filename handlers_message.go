@@ -50,32 +50,6 @@ func (c *appContext) postMessageHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (c *appContext) getToUsersForMessageType(messageType, userId string, message RecieveMessage) ([]int64, error) {
-	var users []ResponseUser
-
-	if messageType == "public" {
-		// Get all user's friends IDs those are the ToUsers
-		err := c.db.Select(&users, findUserFriends, userId)
-		if err != nil {
-			return nil, err
-		}
-
-		var toUserIds []int64
-		userCount := len(users)
-		toUserIds = make([]int64, userCount, userCount)
-		for index, toUser := range users {
-			toUserIds[index] = toUser.Id
-		}
-		return toUserIds, nil
-	}
-
-	if messageType == "direct" {
-		return message.ToUsers, nil
-	}
-
-	return nil, errors.New("Invalid message type")
-}
-
 const findUserMessages = `
 SELECT messages.id, message, type, created_at, username FROM messages 
 JOIN message_to_users
@@ -121,4 +95,41 @@ func (c *appContext) readMessageHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	Respond(w, r, 204, nil)
+}
+
+/************* HELPERS ****************/
+
+func (c *appContext) getToUsersForMessageType(messageType, userId string, message RecieveMessage) ([]int64, error) {
+	var users []ResponseUser
+
+	if messageType == "public" {
+		var err error
+
+		// Check if this is the populr user.
+		if userId == PopulrUserId {
+			// Get all users.
+			err = c.db.Select(&users, "SELECT users.id, users.username FROM users")
+		} else {
+			// Get all user's friends IDs those are the ToUsers
+			err = c.db.Select(&users, findUserFriends, userId)
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		var toUserIds []int64
+		userCount := len(users)
+		toUserIds = make([]int64, userCount, userCount)
+		for index, toUser := range users {
+			toUserIds[index] = toUser.Id
+		}
+		return toUserIds, nil
+	}
+
+	if messageType == "direct" {
+		return message.ToUsers, nil
+	}
+
+	return nil, errors.New("Invalid message type")
 }
