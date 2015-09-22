@@ -85,6 +85,8 @@ func (c *appContext) friendUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Respond(w, r, 204, nil)
+
+	SendNewFriendPush(userId)
 }
 
 func (c *appContext) addFriend(sourceId, targetId string) (err error) {

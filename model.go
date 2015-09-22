@@ -26,6 +26,11 @@ type ResponseUser struct {
 	User
 }
 
+type TokenUser struct {
+	User
+	Token string
+}
+
 type DetailResponseUser struct {
 	User
 	Friends bool `json:"friends"`

@@ -40,6 +40,14 @@ func (c *appContext) postMessageHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	Respond(w, r, 204, nil)
+
+	// Send pushes
+	if message.Type == "direct" {
+		SendNewDirectMessagePush(toUsersIds)
+	}
+	if message.Type == "public" {
+		SendNewPublicMessagePush(toUsersIds)
+	}
 }
 
 func (c *appContext) getToUsersForMessageType(messageType, userId string, message RecieveMessage) ([]int64, error) {
