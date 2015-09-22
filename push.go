@@ -16,7 +16,7 @@ func (c *appContext) SendNewDirectMessagePush(userIds []int64) {
 }
 
 func (c *appContext) SendNewFriendPush(userId string) {
-	c.sendPushWithIdAndMessage(userId, "New friend!", "new_friend")
+	c.sendPushWithIdAndMessage(userId, "", "new_friend")
 }
 
 func (c *appContext) sendNewMessagePush(userIds []int64, message string) {
@@ -27,10 +27,6 @@ func (c *appContext) sendNewMessagePush(userIds []int64, message string) {
 }
 
 func (c *appContext) sendPushWithIdAndMessage(id, message, mtype string) {
-	log.Println("Push data - id: ", id)
-	log.Println("id: ", id)
-	log.Println("message: ", message)
-
 	var tokenUser TokenUser
 	err := c.db.Get(&tokenUser, "SELECT id, username, device_token FROM users WHERE id=$1", id)
 	if err != nil {
@@ -38,6 +34,10 @@ func (c *appContext) sendPushWithIdAndMessage(id, message, mtype string) {
 	}
 
 	log.Println("Sending push to user: ", tokenUser)
+
+	if mtype == "new_message" {
+		message = fmt.Sprintf("%s is your friend!", tokenUser.Username)
+	}
 
 	if tokenUser.Token != "" {
 		sendPush(
