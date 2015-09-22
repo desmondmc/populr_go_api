@@ -43,10 +43,10 @@ func (c *appContext) postMessageHandler(w http.ResponseWriter, r *http.Request) 
 
 	// Send pushes
 	if message.Type == "direct" {
-		SendNewDirectMessagePush(toUsersIds)
+		c.SendNewDirectMessagePush(toUsersIds)
 	}
 	if message.Type == "public" {
-		SendNewPublicMessagePush(toUsersIds)
+		c.SendNewPublicMessagePush(toUsersIds)
 	}
 }
 

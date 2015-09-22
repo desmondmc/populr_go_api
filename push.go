@@ -20,8 +20,7 @@ func (c *appContext) SendNewFriendPush(userId string) {
 }
 
 func (c *appContext) sendNewMessagePush(userIds []int64, message string) {
-	var tokenUser TokenUser
-	for index, userId := range userIds {
+	for _, userId := range userIds {
 		idString := fmt.Sprintf("%d", userId)
 		c.sendPushWithIdAndMessage(idString, message)
 	}
