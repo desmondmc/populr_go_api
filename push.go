@@ -15,18 +15,26 @@ func (c *appContext) SendNewDirectMessagePush(userIds []int64) {
 	c.sendNewMessagePush(userIds, "New direct message")
 }
 
-func (c *appContext) SendNewFriendPush(userId string) {
-	c.sendPushWithIdAndMessage(userId, "", "new_friend")
+func (c *appContext) SendNewFriendPush(toUserId, fromUserId string) {
+	var fromUser User
+	err := c.db.Get(&fromUser, "SELECT id, username FROM users WHERE id=$1", fromUserId)
+	var fromUsername string
+	if err != nil {
+		fromUsername = "Someone"
+	} else {
+		fromUsername = fromUser.Username
+	}
+	c.sendPushWithIdAndMessage(toUserId, "", "new_friend", fromUsername)
 }
 
 func (c *appContext) sendNewMessagePush(userIds []int64, message string) {
 	for _, userId := range userIds {
 		idString := fmt.Sprintf("%d", userId)
-		c.sendPushWithIdAndMessage(idString, message, "new_message")
+		c.sendPushWithIdAndMessage(idString, message, "new_message", "")
 	}
 }
 
-func (c *appContext) sendPushWithIdAndMessage(id, message, mtype string) {
+func (c *appContext) sendPushWithIdAndMessage(id, message, mtype, context string) {
 	var tokenUser TokenUser
 	err := c.db.Get(&tokenUser, "SELECT id, username, device_token FROM users WHERE id=$1", id)
 	if err != nil {
@@ -36,7 +44,7 @@ func (c *appContext) sendPushWithIdAndMessage(id, message, mtype string) {
 	log.Println("Sending push to user: ", tokenUser)
 
 	if mtype == "new_friend" {
-		message = fmt.Sprintf("%s is your friend!", tokenUser.Username)
+		message = fmt.Sprintf("%s is your friend!", context)
 	}
 
 	if tokenUser.Token != "" {
