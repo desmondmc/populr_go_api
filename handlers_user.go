@@ -11,6 +11,8 @@ import (
 )
 
 const PopulrUserId = "3"
+const DefaultMessage1Id = "1"
+const DefaultMessage2Id = "2"
 
 // Returns all users.
 func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
@@ -120,6 +122,8 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	c.addDefaultMessages(newUserId)
+
 	Respond(w, r, 201, newUser)
 }
 
@@ -173,4 +177,12 @@ func (c *appContext) postDeviceTokenHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	Respond(w, r, 204, nil)
+}
+
+func (c *appContext) addDefaultMessages(toUserId string) {
+	var message Message
+	message.Type = "direct"
+	message.Message = "Test default message."
+	c.db.Exec("INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)", toUserId, DefaultMessage1Id)
+	c.db.Exec("INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)", toUserId, DefaultMessage2Id)
 }
