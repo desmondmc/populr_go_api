@@ -179,6 +179,19 @@ func (c *appContext) postDeviceTokenHandler(w http.ResponseWriter, r *http.Reque
 	Respond(w, r, 204, nil)
 }
 
+func (c *appContext) logoutHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("x-key")
+
+	_, err := c.db.Exec("UPDATE users SET device_token = $1 WHERE id = $2", "", userId)
+	if err != nil {
+		log.Println("Error setting device token: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	Respond(w, r, 204, nil)
+}
+
 func (c *appContext) addDefaultMessages(toUserId string) {
 	var message Message
 	message.Type = "direct"

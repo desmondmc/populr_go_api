@@ -59,7 +59,7 @@ func main() {
 	router.Post("/feedback", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveFeedbackResource{})).ThenFunc(appC.postFeedbackHandler))
 	router.Post("/token/:token", loggedInCommonHandlers.ThenFunc(appC.postDeviceTokenHandler))
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
-	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.getUserFriendsHandler))
+	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
 
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
