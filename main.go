@@ -57,6 +57,7 @@ func main() {
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
 	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
 	router.Post("/feedback", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveFeedbackResource{})).ThenFunc(appC.postFeedbackHandler))
+	router.Post("/phone", commonHandlers.Append(contentTypeHandler, bodyHandler(RecievePhoneNumberResource{})).ThenFunc(appC.postPhoneNumberHandler))
 	router.Post("/token/:token", loggedInCommonHandlers.ThenFunc(appC.postDeviceTokenHandler))
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
@@ -103,10 +104,15 @@ var dropAllTables = `
 	DROP TABLE message_to_users, friends, messages, users, feedbacks;
 `
 var addColumn = `
-ALTER TABLE users ADD COLUMN device_token text
+ALTER TABLE users ADD COLUMN phone_number text
+`
+
+var addColumn2 = `
+ALTER TABLE users ADD COLUMN country_code text
 `
 
 func dbSetup(db *sqlx.DB) {
-	//db.MustExec(addColumn)
-	db.Exec(schema)
+	db.MustExec(addColumn)
+	db.MustExec(addColumn2)
+	//db.Exec(schema)
 }

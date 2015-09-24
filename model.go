@@ -40,6 +40,15 @@ type RecieveUserResource struct {
 	Data RecieveUser `json:"data"`
 }
 
+type PhoneNumberResource struct {
+	PhoneNumber string `db:"phone_number" json:"phone_number"`
+	CountryCode string `db:"country_code" json:"country_code"`
+}
+
+type RecievePhoneNumberResource struct {
+	Data PhoneNumberResource `json:"data"`
+}
+
 /************ Message Model **************/
 
 type Message struct {

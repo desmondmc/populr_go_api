@@ -179,6 +179,27 @@ func (c *appContext) postDeviceTokenHandler(w http.ResponseWriter, r *http.Reque
 	Respond(w, r, 204, nil)
 }
 
+func (c *appContext) postPhoneNumberHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("x-key")
+	body := context.Get(r, "body").(*RecievePhoneNumberResource)
+	phoneNumber := body.Data
+
+	_, err := c.db.Exec(
+		"UPDATE users SET phone_number = $1, country_code = $2 WHERE id = $3",
+		phoneNumber.PhoneNumber,
+		phoneNumber.CountryCode,
+		userId,
+	)
+
+	if err != nil {
+		log.Println("Error setting phone number: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	Respond(w, r, 204, nil)
+}
+
 func (c *appContext) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
 
