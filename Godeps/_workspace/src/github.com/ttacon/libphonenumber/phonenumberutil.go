@@ -8,9 +8,9 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/ttacon/builder"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/ttacon/builder"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/golang/protobuf/proto"
 )
 
 const (

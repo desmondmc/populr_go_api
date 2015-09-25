@@ -4,7 +4,7 @@
 
 package libphonenumber
 
-import proto "github.com/golang/protobuf/proto"
+import proto "github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/golang/protobuf/proto"
 import json "encoding/json"
 import math "math"
 
