@@ -203,7 +203,12 @@ func (c *appContext) postContactsHandler(w http.ResponseWriter, r *http.Request)
 	body := context.Get(r, "body").(*RecieveContacts)
 	contacts := body.Data
 
-	response := c.processContacts(contacts)
+	response, err := c.processContacts(contacts)
+	if err != nil {
+		log.Println("Error setting device token: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
 
 	Respond(w, r, 201, response)
 }
