@@ -17,24 +17,12 @@ type RecieveContacts struct {
 	Data []Contact `json:"data"`
 }
 
-func getRawNumber(number, cc string) string {
-	// num, _ := libphonenumber.Parse(number, cc)
-
-	// countryCode := strconv.Itoa(int(num.GetCountryCode()))
-	// nationalNumer := strconv.Itoa(int(num.GetNationalNumber()))
-	// fullNumber := countryCode + nationalNumer
-	// log.Println("Full Number: ", fullNumber)
-	// return fullNumber
-	return number
-}
-
 // Find usernames with numbers that match one of the numbers in the contact array.
-func (c *appContext) processContacts(contacts []Contact, cc string) []PhoneUser {
+func (c *appContext) processContacts(contacts []Contact) []PhoneUser {
 	// Build giant query. 'DOG' is there to make the query building easier.
 	query := "SELECT username, id, phone_number FROM users WHERE phone_number = 'DOG'"
 	for _, contact := range contacts {
 		for _, number := range contact.Phones {
-			number = getRawNumber(number, cc)
 			if number == "" {
 				continue
 			}

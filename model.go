@@ -42,7 +42,6 @@ type RecieveUserResource struct {
 
 type PhoneNumberResource struct {
 	PhoneNumber string `db:"phone_number" json:"phone_number"`
-	CountryCode string `db:"country_code" json:"country_code"`
 }
 
 type RecievePhoneNumberResource struct {
