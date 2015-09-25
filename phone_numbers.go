@@ -4,7 +4,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/ttacon/libphonenumber"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/ttacon/libphonenumber"
 )
 
 type PhoneUser struct {
