@@ -33,7 +33,7 @@ func (c *appContext) processContacts(contacts []Contact) ([]PhoneUser, error) {
 	log.Println("&&&&&&&&&&&&&&&&&\n", query)
 
 	var users []PhoneUser
-	err := c.db.Select(users, query)
+	err := c.db.Select(&users, query)
 	if err != nil {
 		return nil, err
 	}
