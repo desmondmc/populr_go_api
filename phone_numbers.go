@@ -26,7 +26,7 @@ func (c *appContext) processContacts(contacts []Contact) []PhoneUser {
 			if number == "" {
 				continue
 			}
-			query = query + "OR phone_number = " + number
+			query = query + " OR phone_number = " + number
 		}
 	}
 
