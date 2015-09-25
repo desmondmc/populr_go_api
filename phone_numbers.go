@@ -1,7 +1,5 @@
 package main
 
-import "log"
-
 type PhoneUser struct {
 	User
 	PhoneNumber string `db:"phone_number" json:"phone_number"`
@@ -30,15 +28,11 @@ func (c *appContext) processContacts(contacts []Contact) ([]PhoneUser, error) {
 		}
 	}
 
-	log.Println("&&&&&&&&&&&&&&&&&\n", query)
-
 	var users []PhoneUser
 	err := c.db.Select(&users, query)
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println("&&&&&&&&&&&&&&&&&\n", users)
 
 	return users, nil
 }
