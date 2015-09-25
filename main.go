@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/context"
-	"github.com/jmoiron/sqlx"
-	"github.com/justinas/alice"
-	_ "github.com/lib/pq"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/gorilla/context"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/jmoiron/sqlx"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/justinas/alice"
+	_ "github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/lib/pq"
 )
 
 type appContext struct {

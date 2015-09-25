@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/anachronistic/apns"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/anachronistic/apns"
 )
 
 func (c *appContext) SendNewPublicMessagePush(userIds []int64) {
