@@ -1,11 +1,6 @@
 package main
 
-import (
-	"log"
-	"strconv"
-
-	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/ttacon/libphonenumber"
-)
+import "log"
 
 type PhoneUser struct {
 	User
@@ -23,13 +18,14 @@ type RecieveContacts struct {
 }
 
 func getRawNumber(number, cc string) string {
-	num, _ := libphonenumber.Parse(number, cc)
+	// num, _ := libphonenumber.Parse(number, cc)
 
-	countryCode := strconv.Itoa(int(num.GetCountryCode()))
-	nationalNumer := strconv.Itoa(int(num.GetNationalNumber()))
-	fullNumber := countryCode + nationalNumer
-	log.Println("Full Number: ", fullNumber)
-	return fullNumber
+	// countryCode := strconv.Itoa(int(num.GetCountryCode()))
+	// nationalNumer := strconv.Itoa(int(num.GetNationalNumber()))
+	// fullNumber := countryCode + nationalNumer
+	// log.Println("Full Number: ", fullNumber)
+	// return fullNumber
+	return number
 }
 
 // Find usernames with numbers that match one of the numbers in the contact array.
