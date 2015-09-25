@@ -4,7 +4,7 @@ import "log"
 
 type PhoneUser struct {
 	User
-	PhoneNumber string `json:"phone_number"`
+	PhoneNumber string `db:"phone_number" json:"phone_number"`
 }
 
 type Contact struct {
@@ -18,7 +18,7 @@ type RecieveContacts struct {
 }
 
 // Find usernames with numbers that match one of the numbers in the contact array.
-func (c *appContext) processContacts(contacts []Contact) []PhoneUser {
+func (c *appContext) processContacts(contacts []Contact) ([]PhoneUser, error) {
 	// Build giant query. 'DOG' is there to make the query building easier.
 	query := "SELECT username, id, phone_number FROM users WHERE phone_number = 'DOG'"
 	for _, contact := range contacts {
@@ -33,7 +33,12 @@ func (c *appContext) processContacts(contacts []Contact) []PhoneUser {
 	log.Println("&&&&&&&&&&&&&&&&&\n", query)
 
 	var users []PhoneUser
-	c.db.Select(users, query)
+	err := c.db.Select(users, query)
+	if err != nil {
+		return nil, err
+	}
 
-	return users
+	log.Println("&&&&&&&&&&&&&&&&&\n", users)
+
+	return users, nil
 }
