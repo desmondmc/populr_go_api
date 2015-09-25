@@ -58,7 +58,7 @@ func main() {
 	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
 	router.Post("/feedback", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveFeedbackResource{})).ThenFunc(appC.postFeedbackHandler))
 	router.Post("/phone", commonHandlers.Append(contentTypeHandler, bodyHandler(RecievePhoneNumberResource{})).ThenFunc(appC.postPhoneNumberHandler))
-	router.Post("/contacts", commonHandlers.Append(contentTypeHandler, bodyHandler(RecievePhoneNumberResource{})).ThenFunc(appC.postContactsHandler))
+	router.Post("/contacts", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveContacts{})).ThenFunc(appC.postContactsHandler))
 	router.Post("/token/:token", loggedInCommonHandlers.ThenFunc(appC.postDeviceTokenHandler))
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
