@@ -58,6 +58,7 @@ func main() {
 	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
 	router.Post("/feedback", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveFeedbackResource{})).ThenFunc(appC.postFeedbackHandler))
 	router.Post("/phone", commonHandlers.Append(contentTypeHandler, bodyHandler(RecievePhoneNumberResource{})).ThenFunc(appC.postPhoneNumberHandler))
+	router.Post("/contacts", commonHandlers.Append(contentTypeHandler, bodyHandler(RecievePhoneNumberResource{})).ThenFunc(appC.postContactsHandler))
 	router.Post("/token/:token", loggedInCommonHandlers.ThenFunc(appC.postDeviceTokenHandler))
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
@@ -71,7 +72,8 @@ CREATE TABLE users (
 	id SERIAL NOT NULL PRIMARY KEY,
     username text,
     password text,
-    device_token text
+    device_token text,
+    phone_number text
 );
 
 CREATE TABLE friends (
@@ -100,19 +102,6 @@ CREATE TABLE feedbacks (
 );
 `
 
-var dropAllTables = `
-	DROP TABLE message_to_users, friends, messages, users, feedbacks;
-`
-var addColumn = `
-ALTER TABLE users ADD COLUMN phone_number text
-`
-
-var addColumn2 = `
-ALTER TABLE users ADD COLUMN country_code text
-`
-
 func dbSetup(db *sqlx.DB) {
-	db.MustExec(addColumn)
-	db.MustExec(addColumn2)
 	//db.Exec(schema)
 }

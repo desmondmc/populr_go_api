@@ -200,6 +200,25 @@ func (c *appContext) postPhoneNumberHandler(w http.ResponseWriter, r *http.Reque
 	Respond(w, r, 204, nil)
 }
 
+func (c *appContext) postContactsHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("x-key")
+	body := context.Get(r, "body").(*RecieveContacts)
+	contacts := body.Data
+
+	var countryCode string
+
+	err := c.db.Get(&countryCode, "SELECT country_code FROM users WHERE id=$1", userId)
+	if err != nil {
+		log.Println("Error getting country code: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
+	response := c.processContacts(contacts, countryCode)
+
+	Respond(w, r, 201, response)
+}
+
 func (c *appContext) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
 
