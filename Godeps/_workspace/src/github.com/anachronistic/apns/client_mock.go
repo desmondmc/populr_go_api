@@ -1,6 +1,6 @@
 package apns
 
-import "github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/stretchr/testify/mock"
+import "github.com/stretchr/testify/mock"
 
 type MockClient struct {
 	mock.Mock

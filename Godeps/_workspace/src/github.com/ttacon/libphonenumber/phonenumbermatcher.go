@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/ttacon/builder"
+	"github.com/ttacon/builder"
 )
 
 type PhoneNumberMatcher struct {
