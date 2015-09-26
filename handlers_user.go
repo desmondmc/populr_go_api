@@ -75,18 +75,9 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, ErrInternalServer)
 		return
 	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println("Error hashing user password: ", err)
-		WriteError(w, ErrInternalServer)
-		return
-	}
-
-	log.Println("Saved PW: ", savedUser.Password)
-	log.Println("Sent PW: ", string(hashedPassword))
 	// Password is incorrect.
-	if savedUser.Password != string(hashedPassword) {
+	err = bcrypt.CompareHashAndPassword([]byte(savedUser.Password), []byte(user.Password))
+	if err != nil {
 		WriteError(w, ErrInvalidLogin)
 		return
 	}
