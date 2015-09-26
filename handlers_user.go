@@ -82,6 +82,9 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, ErrInternalServer)
 		return
 	}
+
+	log.Println("Saved PW: ", savedUser.Password)
+	log.Println("Sent PW: ", string(hashedPassword))
 	// Password is incorrect.
 	if savedUser.Password != string(hashedPassword) {
 		WriteError(w, ErrInvalidLogin)
