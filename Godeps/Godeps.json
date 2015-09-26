@@ -7,10 +7,6 @@
 			"Rev": "f90152b7e0ae845938ce1258d90072fd116131ac"
 		},
 		{
-			"ImportPath": "github.com/golang/protobuf/proto",
-			"Rev": "59b73b37c1e45995477aae817e4a653c89a858db"
-		},
-		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
 		},
@@ -48,12 +44,12 @@
 			"Rev": "b8dc1cecf15bdaf1988d9e87aa7cd98d899a06d6"
 		},
 		{
-			"ImportPath": "github.com/ttacon/builder",
-			"Rev": "7f152c3cf4714fd6318739f8f3dbcd14c2a18b39"
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "e74b0352e547e3830f8471e7ae9609239c52606f"
 		},
 		{
-			"ImportPath": "github.com/ttacon/libphonenumber",
-			"Rev": "022fe8cdfb3c0b4a0c4280e15934e1e7be660195"
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "e74b0352e547e3830f8471e7ae9609239c52606f"
 		}
 	]
 }
