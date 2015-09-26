@@ -65,10 +65,11 @@ func main() {
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
 
+	appC.bcryptAllUserPasswords()
+
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
 
-	appC.bcryptAllUserPasswords()
 }
 
 var schema = `
@@ -112,7 +113,12 @@ func dbSetup(db *sqlx.DB) {
 
 func (c *appContext) bcryptAllUserPasswords() {
 	var users []RecieveUser
-	c.db.Select(&users, "SELECT id, username, password FROM users")
+	err := c.db.Select(&users, "SELECT id, username, password FROM users")
+	if err != nil {
+		log.Println("Error in users query: ", err)
+		return
+	}
+	log.Println("Users: ", users)
 
 	for _, user := range users {
 		// Generate Hash From Password
