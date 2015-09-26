@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/gorilla/context"
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/jmoiron/sqlx"
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/justinas/alice"
@@ -65,6 +67,8 @@ func main() {
 
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
+
+	appC.bcryptAllUserPasswords()
 }
 
 var schema = `
@@ -104,4 +108,25 @@ CREATE TABLE feedbacks (
 
 func dbSetup(db *sqlx.DB) {
 	//db.Exec(schema)
+}
+
+func (c *appContext) bcryptAllUserPasswords() {
+	var users []RecieveUser
+	c.db.Select(&users, "SELECT id, username, password FROM users")
+
+	for _, user := range users {
+		// Generate Hash From Password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Println("Error hashing user password: ", err)
+			return
+		}
+
+		// Create the user
+		_, err = c.db.Exec(
+			"UPDATE users SET password = $1 WHERE id = $2",
+			string(hashedPassword),
+			user.Id,
+		)
+	}
 }
