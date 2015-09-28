@@ -75,14 +75,21 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, ErrInternalServer)
 		return
 	}
-	// Password is incorrect.
+
 	err = bcrypt.CompareHashAndPassword([]byte(savedUser.Password), []byte(user.Password))
 	if err != nil {
+		// Password is incorrect.
 		WriteError(w, ErrInvalidLogin)
 		return
 	}
 
-	userToReturn := ResponseUser{User: savedUser.User}
+	var userToReturn PhoneUser
+	err = c.db.Get(&userToReturn, "SELECT id, username, phone_number FROM users WHERE username=$1", user.Username)
+	if err != nil {
+		log.Println("Failed to retrieve phone user.")
+		WriteError(w, ErrInvalidLogin)
+		return
+	}
 
 	Respond(w, r, 201, userToReturn)
 }
