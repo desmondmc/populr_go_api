@@ -212,10 +212,11 @@ func (c *appContext) postPhoneNumberHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *appContext) postContactsHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("x-key")
 	body := context.Get(r, "body").(*RecieveContacts)
 	contacts := body.Data
 
-	response, err := c.processContacts(contacts)
+	response, err := c.processContacts(contacts, userId)
 	if err != nil {
 		log.Println("Error setting device token: ", err)
 		WriteError(w, ErrInternalServer)
