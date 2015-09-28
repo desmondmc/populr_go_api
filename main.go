@@ -65,8 +65,6 @@ func main() {
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
 
-	appC.bcryptAllUserPasswords()
-
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
 

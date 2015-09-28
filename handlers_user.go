@@ -127,15 +127,6 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newUserId := fmt.Sprintf("%d", newUser.Id)
-
-	log.Println("New user: ", newUserId, "Populr: ", PopulrUserId)
-	err = c.addFriend(newUserId, PopulrUserId)
-	if err != nil {
-		log.Println("Error adding Populr user: ", err)
-		WriteError(w, ErrInternalServer)
-		return
-	}
-
 	c.addDefaultMessages(newUserId)
 
 	Respond(w, r, 201, newUser)
