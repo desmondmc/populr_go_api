@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/golang.org/x/crypto/bcrypt"
+	"github.com/nu7hatch/gouuid"
 
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/gorilla/context"
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/julienschmidt/httprouter"
@@ -85,7 +86,7 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var userToReturn PhoneUser
-	err = c.db.Get(&userToReturn, "SELECT id, username, phone_number FROM users WHERE username=$1", user.Username)
+	err = c.db.Get(&userToReturn, "SELECT id, username, phone_number, new_token FROM users WHERE username=$1", user.Username)
 	if err != nil {
 		log.Println("Failed to retrieve phone user: ", err)
 		WriteError(w, ErrInvalidLogin)
@@ -116,20 +117,34 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	uuid, err := uuid.NewV4()
+	if err != nil {
+		log.Println("Error creating uuid: ", err)
+		WriteError(w, ErrInternalServer)
+		return
+	}
+
 	// Create the user
 	_, err = c.db.Exec(
-		"INSERT INTO users (username, password) VALUES ($1, $2)",
+		"INSERT INTO users (username, password, new_token) VALUES ($1, $2, $3)",
 		user.Username,
 		string(hashedPassword),
+		uuid.String(),
 	)
+
 	if err != nil {
 		log.Println("Error creating user: ", err)
 		WriteError(w, ErrInternalServer)
 		return
 	}
 
-	var newUser ResponseUser
-	err = c.db.Get(&newUser, "SELECT id, username FROM users WHERE username=$1", user.Username)
+	var newUser PhoneUser
+	err = c.db.Get(
+		&newUser,
+		"SELECT id, username, phone_number, new_token FROM users WHERE username=$1",
+		user.Username,
+	)
+
 	if err != nil {
 		log.Println("User created but there was an error on return: ", err)
 	}

@@ -35,7 +35,7 @@ func (c *appContext) sendNewMessagePush(userIds []int64, message string) {
 }
 
 func (c *appContext) sendPushWithIdAndMessage(id, message, mtype, context string) {
-	var tokenUser TokenUser
+	var tokenUser DeviceTokenUser
 	err := c.db.Get(&tokenUser, "SELECT id, username, device_token FROM users WHERE id=$1", id)
 	if err != nil {
 		log.Println("Error finding user for push: ", err)

@@ -43,7 +43,7 @@ func main() {
 	// Setup middleware
 	appC := appContext{db}
 	commonHandlers := alice.New(context.ClearHandler, loggingHandler, recoverHandler, acceptHandler)
-	loggedInCommonHandlers := commonHandlers.Append(contentTypeHandler)
+	loggedInCommonHandlers := commonHandlers.Append(contentTypeHandler, appC.newTokenHandler, userIdHandler)
 
 	// Setup Routes
 	log.Println("Setting up routes...")
@@ -57,10 +57,10 @@ func main() {
 	router.Post("/login", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.loginUserHandler))
 	router.Post("/friend/:id", loggedInCommonHandlers.ThenFunc(appC.friendUserHandler))
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
-	router.Post("/message", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
-	router.Post("/feedback", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveFeedbackResource{})).ThenFunc(appC.postFeedbackHandler))
-	router.Post("/phone", commonHandlers.Append(contentTypeHandler, bodyHandler(RecievePhoneNumberResource{})).ThenFunc(appC.postPhoneNumberHandler))
-	router.Post("/contacts", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveContacts{})).ThenFunc(appC.postContactsHandler))
+	router.Post("/message", loggedInCommonHandlers.Append(bodyHandler(RecieveMessageResource{})).ThenFunc(appC.postMessageHandler))
+	router.Post("/feedback", loggedInCommonHandlers.Append(bodyHandler(RecieveFeedbackResource{})).ThenFunc(appC.postFeedbackHandler))
+	router.Post("/phone", loggedInCommonHandlers.Append(bodyHandler(RecievePhoneNumberResource{})).ThenFunc(appC.postPhoneNumberHandler))
+	router.Post("/contacts", loggedInCommonHandlers.Append(bodyHandler(RecieveContacts{})).ThenFunc(appC.postContactsHandler))
 	router.Post("/token/:token", loggedInCommonHandlers.ThenFunc(appC.postDeviceTokenHandler))
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
@@ -76,7 +76,8 @@ CREATE TABLE users (
     username text,
     password text,
     device_token text,
-    phone_number text
+    phone_number text,
+    new_token text
 );
 
 CREATE TABLE friends (

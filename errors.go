@@ -34,6 +34,8 @@ var (
 	ErrAlreadyFriends       = &Error{"already_friends", 409, "Can't befriend someone twice", "You tried to friend someone twice. Don't do that.", ""}
 	ErrFriending            = &Error{"friending_error", 409, "Friending Error", "Either you or the the person you are trying to friend do not exist. Strange.", ""}
 	ErrNoXKey               = &Error{"no_x_key", 409, "No x-key value in header", "HTTP x-key needs to be set for this request.", ""}
+	ErrNoToken              = &Error{"no_token", 409, "No token value in header", "Token needs to be set for this request.", ""}
+	ErrBadToken             = &Error{"bad_token", 409, "Bad token value in header", "Bad token in this request.", ""}
 	ErrInvalidLogin         = &Error{"invalid_login", 409, "Invalid Login", "The username or password is incorrect.", "The username or password is incorrect."}
 	ErrNoUserForId          = &Error{"no_user_for_id", 409, "Could not find user", "No user found for that Id.", ""}
 )

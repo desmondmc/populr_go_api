@@ -84,6 +84,38 @@ func userIdHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
+func (c *appContext) newTokenHandler(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		passedToken := r.Header.Get("new-token")
+		userId := r.Header.Get("x-key")
+		if passedToken == "" {
+			log.Printf("No token passed")
+			WriteError(w, ErrNoToken)
+			return
+		}
+
+		var user PhoneUser
+		err := c.db.Get(&user, "SELECT id, username, phone_number, new_token FROM users WHERE id=$1", userId)
+		if err != nil {
+			log.Println("Error checking token: ", err)
+			WriteError(w, ErrInternalServer)
+			return
+		}
+
+		if passedToken != user.NewToken {
+			log.Println("Error checking token: ", err)
+			WriteError(w, ErrBadToken)
+			return
+		}
+
+		if next != nil {
+			next.ServeHTTP(w, r)
+		}
+	}
+
+	return http.HandlerFunc(fn)
+}
+
 func bodyHandler(v interface{}) func(http.Handler) http.Handler {
 	t := reflect.TypeOf(v)
 

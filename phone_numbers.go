@@ -5,6 +5,7 @@ import "github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com
 type PhoneUser struct {
 	User
 	PhoneNumber zero.String `db:"phone_number" json:"phone_number"`
+	NewToken    string      `db:"new_token" json:"new_token"`
 }
 
 type Contact struct {
