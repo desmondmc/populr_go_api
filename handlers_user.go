@@ -79,6 +79,7 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 	err = bcrypt.CompareHashAndPassword([]byte(savedUser.Password), []byte(user.Password))
 	if err != nil {
 		// Password is incorrect.
+		log.Println("Error on login: ", err)
 		WriteError(w, ErrInvalidLogin)
 		return
 	}
