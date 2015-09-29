@@ -30,7 +30,7 @@ func (c *appContext) processContacts(contacts []Contact, userId string) ([]Detai
 		}
 	}
 
-	query = query + " id != " + userId
+	query = query + " AND id != " + userId
 
 	log.Println(query)
 
