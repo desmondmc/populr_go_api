@@ -13,9 +13,7 @@ import (
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/julienschmidt/httprouter"
 )
 
-const PopulrUserId = "3"
-const DefaultMessage1Id = "1"
-const DefaultMessage2Id = "2"
+const PopulrUserId = "34"
 
 // Returns all users.
 func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
