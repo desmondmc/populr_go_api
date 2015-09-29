@@ -2,7 +2,7 @@ package main
 
 type PhoneUser struct {
 	User
-	PhoneNumber string `db:"phone_number" json:"phone_number"`
+	PhoneNumber []byte `db:"phone_number" json:"phone_number"`
 }
 
 type Contact struct {
