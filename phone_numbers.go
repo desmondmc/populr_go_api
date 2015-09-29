@@ -1,8 +1,10 @@
 package main
 
+import "database/sql"
+
 type PhoneUser struct {
 	User
-	PhoneNumber []byte `db:"phone_number" json:"phone_number"`
+	PhoneNumber sql.NullString `db:"phone_number" json:"phone_number"`
 }
 
 type Contact struct {
