@@ -11,6 +11,11 @@
 			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
 		},
 		{
+			"ImportPath": "github.com/guregu/null/zero",
+			"Comment": "v2.2",
+			"Rev": "4ac4f00378f403715e68ae8827a8b1d8e9addf4a"
+		},
+		{
 			"ImportPath": "github.com/jmoiron/sqlx",
 			"Comment": "sqlx-v1.1-45-g3a92b1f",
 			"Rev": "3a92b1fd96032c4490fa618370fbf98ec69b680c"
