@@ -87,7 +87,7 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 	var userToReturn PhoneUser
 	err = c.db.Get(&userToReturn, "SELECT id, username, phone_number FROM users WHERE username=$1", user.Username)
 	if err != nil {
-		log.Println("Failed to retrieve phone user.")
+		log.Println("Failed to retrieve phone user: ", err)
 		WriteError(w, ErrInvalidLogin)
 		return
 	}
