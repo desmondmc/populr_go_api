@@ -1,5 +1,7 @@
 package main
 
+import "log"
+
 type PhoneUser struct {
 	User
 	PhoneNumber string `db:"phone_number" json:"phone_number"`
@@ -27,6 +29,10 @@ func (c *appContext) processContacts(contacts []Contact, userId string) ([]Detai
 			query = query + " OR phone_number = '" + number + "'"
 		}
 	}
+
+	query = query + " WHERE id != " + userId
+
+	log.Println(query)
 
 	var users []ResponseUser
 	err := c.db.Select(&users, query)
