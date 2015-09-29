@@ -20,20 +20,17 @@ type RecieveContacts struct {
 // Find usernames with numbers that match one of the numbers in the contact array.
 func (c *appContext) processContacts(contacts []Contact, userId string) ([]DetailResponseUser, error) {
 	// Build giant query. 'DOG' is there to make the query building easier.
-	query := "SELECT username, id FROM users WHERE id !=" + userId + " AND ("
-	for contactIndex, contact := range contacts {
-		for phoneIndex, number := range contact.Phones {
+	query := "SELECT username, id FROM users WHERE (phone_number ='DOG'"
+	for _, contact := range contacts {
+		for _, number := range contact.Phones {
 			if number == "" {
 				continue
 			}
-			query = query + " phone_number = '" + number + "'"
-			if contactIndex == len(contacts) && phoneIndex == len(contact.Phones) {
-				query = query + ")"
-			} else {
-				query = query + " OR"
-			}
+			query = query + " OR phone_number = '" + number + "'"
 		}
 	}
+
+	query = query + ") AND id != " + userId
 
 	log.Println(query)
 
