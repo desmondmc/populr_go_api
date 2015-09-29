@@ -240,9 +240,21 @@ func (c *appContext) logoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *appContext) addDefaultMessages(toUserId string) {
-	var message Message
-	message.Type = "direct"
-	message.Message = "Test default message."
-	c.db.Exec("INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)", toUserId, DefaultMessage1Id)
-	c.db.Exec("INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)", toUserId, DefaultMessage2Id)
+	var message1 Message
+	message1.Type = "direct"
+	message1.Message = "Welcome to POPULR! the fastest messaging app in the world! ✋🏽 ✊🏿 👌🏻 ✌🏾 👍🏿 👊🏽 "
+
+	var message1Id int
+	c.db.Get(
+		&message1Id,
+		"INSERT INTO messages (from_user_id, message, type) VALUES ($1, $2, $3) RETURNING id",
+		PopulrUserId,
+		message1.Message,
+		message1.Type,
+	)
+	c.db.Exec(
+		"INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)",
+		toUserId,
+		message1Id,
+	)
 }
