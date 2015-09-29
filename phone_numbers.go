@@ -1,10 +1,10 @@
 package main
 
-import "database/sql"
+import "github.com/guregu/null/zero"
 
 type PhoneUser struct {
 	User
-	PhoneNumber sql.NullString `db:"phone_number" json:"phone_number"`
+	PhoneNumber zero.String `db:"phone_number" json:"phone_number"`
 }
 
 type Contact struct {
