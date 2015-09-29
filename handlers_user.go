@@ -240,21 +240,51 @@ func (c *appContext) logoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *appContext) addDefaultMessages(toUserId string) {
-	var message1 Message
-	message1.Type = "direct"
-	message1.Message = "Welcome to POPULR! the fastest messaging app in the world! ✋🏽 ✊🏿 👌🏻 ✌🏾 👍🏿 👊🏽 "
+	messageType := "direct"
+	message1 := "Welcome to POPULR! the fastest messaging app in the world! ✋🏽 ✊🏿 👌🏻 ✌🏾 👍🏿 👊🏽 "
+	message2 := "Try out emojis on this thing, they come alive, watch: 🌜_______🌛 🌜______🌛 🌜_____🌛 🌜____🌛 🌜___🌛 🌜__🌛 🌜_🌛 🌜🌛 🌝 🌝 🌝 🌖 🌗 🌘 🌚 🌚 🌚 "
+	message3 := "Pay attention when you read these messages, because when they’re gone… they’re gone. 💣3 💣2 💣1 💥"
 
 	var message1Id int
 	c.db.Get(
 		&message1Id,
 		"INSERT INTO messages (from_user_id, message, type) VALUES ($1, $2, $3) RETURNING id",
 		PopulrUserId,
-		message1.Message,
-		message1.Type,
+		message1,
+		messageType,
 	)
-	c.db.Exec(
+	var message2Id int
+	c.db.Get(
+		&message2Id,
+		"INSERT INTO messages (from_user_id, message, type) VALUES ($1, $2, $3) RETURNING id",
+		PopulrUserId,
+		message2,
+		messageType,
+	)
+	var message3Id int
+	c.db.Get(
+		&message3Id,
+		"INSERT INTO messages (from_user_id, message, type) VALUES ($1, $2, $3) RETURNING id",
+		PopulrUserId,
+		message3,
+		messageType,
+	)
+
+	tx := c.db.MustBegin()
+	tx.Exec(
 		"INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)",
 		toUserId,
 		message1Id,
 	)
+	tx.Exec(
+		"INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)",
+		toUserId,
+		message2Id,
+	)
+	tx.Exec(
+		"INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)",
+		toUserId,
+		message3Id,
+	)
+	tx.Commit()
 }
