@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/golang.org/x/crypto/bcrypt"
-
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/gorilla/context"
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/jmoiron/sqlx"
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/justinas/alice"
@@ -108,30 +106,4 @@ CREATE TABLE feedbacks (
 
 func dbSetup(db *sqlx.DB) {
 	//db.Exec(schema)
-}
-
-func (c *appContext) bcryptAllUserPasswords() {
-	var users []RecieveUser
-	err := c.db.Select(&users, "SELECT id, username, password FROM users")
-	if err != nil {
-		log.Println("Error in users query: ", err)
-		return
-	}
-	log.Println("Users: ", users)
-
-	for _, user := range users {
-		// Generate Hash From Password
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-		if err != nil {
-			log.Println("Error hashing user password: ", err)
-			return
-		}
-
-		// Create the user
-		_, err = c.db.Exec(
-			"UPDATE users SET password = $1 WHERE id = $2",
-			string(hashedPassword),
-			user.Id,
-		)
-	}
 }

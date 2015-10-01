@@ -100,7 +100,7 @@ func (c *appContext) readMessageHandler(w http.ResponseWriter, r *http.Request) 
 /************* HELPERS ****************/
 
 func (c *appContext) getToUsersForMessageType(messageType, userId string, message RecieveMessage) ([]int64, error) {
-	var users []ResponseUser
+	var users []User
 
 	if messageType == "public" {
 		var err error

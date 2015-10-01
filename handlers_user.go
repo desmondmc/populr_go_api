@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/nu7hatch/gouuid"
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/golang.org/x/crypto/bcrypt"
 
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/gorilla/context"
@@ -18,63 +17,50 @@ const PopulrUserId = "34"
 // Returns all users.
 func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
-	var users []ResponseUser
-	err := c.db.Select(&users, "SELECT id, username FROM users ORDER BY username ASC")
-	if err != nil {
-		log.Println("Error finding users: ", err)
-		WriteError(w, ErrInternalServer)
-	}
 
-	detailedResponseUsers, err := c.MakeDetailResponseUsers(&users, userId)
+	users, err := c.getAllUsers(userId)
 	if err != nil {
-		log.Println("Error searching on users: ", err)
+		log.Println("Error getting all users: ", err)
 		WriteError(w, ErrInternalServer)
 		return
 	}
 
-	Respond(w, r, 201, detailedResponseUsers)
+	Respond(w, r, 201, users)
 }
 
 // Returns a single user.
 func (c *appContext) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
-	params := context.Get(r, "params").(httprouter.Params)
-	var user ResponseUser
-	err := c.db.Get(&user, "SELECT id, username FROM users WHERE id=$1", params.ByName("id"))
-	if err == sql.ErrNoRows {
-		WriteError(w, ErrNoUserForId)
-		return
-	}
-	detailedResponseUsers, err := c.MakeDetailResponseUsers(&[]ResponseUser{user}, userId)
+
+	user, err := c.getUserWithId(userId)
 	if err != nil {
 		log.Println("Error searching on users: ", err)
 		WriteError(w, ErrInternalServer)
 		return
 	}
 
-	Respond(w, r, 201, detailedResponseUsers)
+	Respond(w, r, 201, *user)
 }
 
 func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 	body := context.Get(r, "body").(*RecieveUserResource)
 	user := body.Data
 
-	// Check if this username is already taken.
-	var savedUser RecieveUser
-	err := c.db.Get(&savedUser, "SELECT id, username, password FROM users WHERE username=$1", user.Username)
-
-	// User doesn't exist.
+	// Check if this username exists
+	savedUser, err := c.getUserWithUsername(user.Username)
 	if err == sql.ErrNoRows {
+		// User doesn't exist.
+		log.Println("Invalid login attempt.")
 		WriteError(w, ErrInvalidLogin)
 		return
 	}
-
 	if err != nil {
 		log.Println("Error finding user: ", err)
 		WriteError(w, ErrInternalServer)
 		return
 	}
 
+	// Validate password.
 	err = bcrypt.CompareHashAndPassword([]byte(savedUser.Password), []byte(user.Password))
 	if err != nil {
 		// Password is incorrect.
@@ -83,15 +69,15 @@ func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userToReturn PhoneUser
-	err = c.db.Get(&userToReturn, "SELECT id, username, phone_number, new_token FROM users WHERE username=$1", user.Username)
-	if err != nil {
+	// Get user with phone and token
+	userToReturn, err := c.getPhoneTokenUserWithUsername(user.Username)
+	if userToReturn == nil {
 		log.Println("Failed to retrieve phone user: ", err)
 		WriteError(w, ErrInvalidLogin)
 		return
 	}
 
-	Respond(w, r, 201, userToReturn)
+	Respond(w, r, 201, *userToReturn)
 }
 
 // Creates a user.
@@ -100,49 +86,22 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	user := body.Data
 
 	// Check if this username is already taken.
-	var users []RecieveUser
-	c.db.Select(&users, "SELECT id, username, password FROM users WHERE username=$1", user.Username)
-	if len(users) != 0 {
+	_, err := c.getUserWithUsername(user.Username)
+	if err != sql.ErrNoRows {
+		log.Println("Signup failed ", err)
 		WriteError(w, ErrUserExists)
 		return
 	}
 
-	// Generate Hash From Password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println("Error hashing user password: ", err)
-		WriteError(w, ErrInternalServer)
-		return
-	}
-
-	uuid, err := uuid.NewV4()
-	if err != nil {
-		log.Println("Error creating uuid: ", err)
-		WriteError(w, ErrInternalServer)
-		return
-	}
-
 	// Create the user
-	_, err = c.db.Exec(
-		"INSERT INTO users (username, password, new_token) VALUES ($1, $2, $3)",
-		user.Username,
-		string(hashedPassword),
-		uuid.String(),
-	)
-
+	err = c.createUser(user.Username, user.Password)
 	if err != nil {
 		log.Println("Error creating user: ", err)
 		WriteError(w, ErrInternalServer)
 		return
 	}
 
-	var newUser PhoneUser
-	err = c.db.Get(
-		&newUser,
-		"SELECT id, username, phone_number, new_token FROM users WHERE username=$1",
-		user.Username,
-	)
-
+	newUser, err := c.getPhoneTokenUserWithUsername(user.Username)
 	if err != nil {
 		log.Println("User created but there was an error on return: ", err)
 	}
@@ -150,7 +109,7 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	newUserId := fmt.Sprintf("%d", newUser.Id)
 	c.addDefaultMessages(newUserId)
 
-	Respond(w, r, 201, newUser)
+	Respond(w, r, 201, *newUser)
 }
 
 // Returns all users that match search
@@ -162,10 +121,15 @@ func (c *appContext) searchUsersHandler(w http.ResponseWriter, r *http.Request) 
 
 	log.Println("Search Term: ", searchTerm)
 
-	var users []ResponseUser
-	c.db.Select(&users, "SELECT id, username FROM users WHERE users.username LIKE $1 AND users.id != $2 ORDER BY username ASC", searchTerm, userId)
+	var users []User
+	c.db.Select(
+		&users,
+		"SELECT id, username FROM users WHERE users.username LIKE $1 AND users.id != $2 ORDER BY username ASC",
+		searchTerm,
+		userId,
+	)
 
-	detailedResponseUsers, err := c.MakeDetailResponseUsers(&users, userId)
+	detailedResponseUsers, err := c.makeDetailResponseUsers(&users, userId)
 	if err != nil {
 		log.Println("Error searching on users: ", err)
 		WriteError(w, ErrInternalServer)
@@ -251,54 +215,4 @@ func (c *appContext) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Respond(w, r, 204, nil)
-}
-
-func (c *appContext) addDefaultMessages(toUserId string) {
-	messageType := "direct"
-	message1 := "Welcome to POPULR! the fastest messaging app in the world! ✋🏽 ✊🏿 👌🏻 ✌🏾 👍🏿 👊🏽 "
-	message2 := "Try out emojis on this thing, they come alive, watch: 🌜_______🌛 🌜______🌛 🌜_____🌛 🌜____🌛 🌜___🌛 🌜__🌛 🌜_🌛 🌜🌛 🌝 🌝 🌝 🌖 🌗 🌘 🌚 🌚 🌚 "
-	message3 := "Pay attention when you read these messages, because when they’re gone… they’re gone. 💣3 💣2 💣1 💥"
-
-	var message1Id int
-	c.db.Get(
-		&message1Id,
-		"INSERT INTO messages (from_user_id, message, type) VALUES ($1, $2, $3) RETURNING id",
-		PopulrUserId,
-		message1,
-		messageType,
-	)
-	var message2Id int
-	c.db.Get(
-		&message2Id,
-		"INSERT INTO messages (from_user_id, message, type) VALUES ($1, $2, $3) RETURNING id",
-		PopulrUserId,
-		message2,
-		messageType,
-	)
-	var message3Id int
-	c.db.Get(
-		&message3Id,
-		"INSERT INTO messages (from_user_id, message, type) VALUES ($1, $2, $3) RETURNING id",
-		PopulrUserId,
-		message3,
-		messageType,
-	)
-
-	tx := c.db.MustBegin()
-	tx.Exec(
-		"INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)",
-		toUserId,
-		message1Id,
-	)
-	tx.Exec(
-		"INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)",
-		toUserId,
-		message2Id,
-	)
-	tx.Exec(
-		"INSERT INTO message_to_users (user_id, message_id) VALUES ($1, $2)",
-		toUserId,
-		message3Id,
-	)
-	tx.Commit()
 }

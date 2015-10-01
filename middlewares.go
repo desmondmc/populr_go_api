@@ -94,7 +94,7 @@ func (c *appContext) newTokenHandler(next http.Handler) http.Handler {
 			return
 		}
 
-		var user PhoneUser
+		var user PhoneTokenUser
 		err := c.db.Get(&user, "SELECT id, username, phone_number, new_token FROM users WHERE id=$1", userId)
 		if err != nil {
 			log.Println("Error checking token: ", err)

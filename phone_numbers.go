@@ -1,13 +1,5 @@
 package main
 
-import "github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/guregu/null/zero"
-
-type PhoneUser struct {
-	User
-	PhoneNumber zero.String `db:"phone_number" json:"phone_number"`
-	NewToken    string      `db:"new_token" json:"new_token"`
-}
-
 type Contact struct {
 	FirstName string   `json:"first_name"`
 	LastName  string   `json:"last_name"`
@@ -34,13 +26,13 @@ func (c *appContext) processContacts(contacts []Contact, userId string) ([]Detai
 	// Prevents returning to the user themself as a suggestion.
 	query = query + ") AND id != " + userId
 
-	var users []ResponseUser
+	var users []User
 	err := c.db.Select(&users, query)
 	if err != nil {
 		return nil, err
 	}
 
-	detailResponseUsers, err := c.MakeDetailResponseUsers(&users, userId)
+	detailResponseUsers, err := c.makeDetailResponseUsers(&users, userId)
 	if err != nil {
 		return nil, err
 	}

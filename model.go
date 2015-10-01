@@ -1,6 +1,10 @@
 package main
 
-import "time"
+import (
+	"time"
+
+	"github.com/guregu/null/zero"
+)
 
 type Public interface {
 	Public() interface{}
@@ -17,13 +21,15 @@ type User struct {
 	Username string `db:"username" json:"username"`
 }
 
-type RecieveUser struct {
+type PasswordUser struct {
 	User
 	Password string `db:"password" json:"password"`
 }
 
-type ResponseUser struct {
+type PhoneTokenUser struct {
 	User
+	PhoneNumber zero.String `db:"phone_number" json:"phone_number"`
+	NewToken    string      `db:"new_token" json:"new_token"`
 }
 
 type DeviceTokenUser struct {
@@ -37,7 +43,7 @@ type DetailResponseUser struct {
 }
 
 type RecieveUserResource struct {
-	Data RecieveUser `json:"data"`
+	Data PasswordUser `json:"data"`
 }
 
 type PhoneNumberResource struct {

@@ -18,40 +18,13 @@ ON friends.friend_id=users.id
 WHERE friends.user_id=$1
 `
 
-// Given a set of users returns
-func (c *appContext) MakeDetailResponseUsers(users *[]ResponseUser, userId string) (responseUsers []DetailResponseUser, err error) {
-	passedUsers := *users
-	var friends []User
-
-	err = c.db.Select(&friends, findUserFriends, userId)
-	if err != nil {
-		return nil, err
-	}
-	userCount := len(passedUsers)
-	responseUsers = make([]DetailResponseUser, userCount, userCount)
-
-	// TODO Might be able to make this more efficient.
-	for pIndex, passedUser := range passedUsers {
-		responseUsers[pIndex].Id = passedUser.Id
-		responseUsers[pIndex].Username = passedUser.Username
-		for _, friend := range friends {
-			if friend.Id == passedUser.Id {
-				responseUsers[pIndex].Friends = true
-				break
-			}
-		}
-	}
-
-	return responseUsers, nil
-}
-
 func (c *appContext) getUserFriendsHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
-	var users []ResponseUser
+	var users []User
 
 	c.db.Select(&users, findUserFriends, userId)
 
-	detailedResponseUsers, err := c.MakeDetailResponseUsers(&users, userId)
+	detailedResponseUsers, err := c.makeDetailResponseUsers(&users, userId)
 	if err != nil {
 		log.Println("Error searching on users: ", err)
 		WriteError(w, ErrInternalServer)
