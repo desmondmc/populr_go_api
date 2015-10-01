@@ -46,7 +46,6 @@ func main() {
 	// Setup Routes
 	log.Println("Setting up routes...")
 	router := NewRouter()
-	router.Get("/user/:id", commonHandlers.ThenFunc(appC.getUserHandler))
 	router.Get("/friends", loggedInCommonHandlers.ThenFunc(appC.getUserFriendsHandler))
 	router.Get("/users", commonHandlers.ThenFunc(appC.getUsersHandler))
 	router.Get("/searchusers/:term", loggedInCommonHandlers.ThenFunc(appC.searchUsersHandler))
@@ -65,7 +64,6 @@ func main() {
 
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
-
 }
 
 var schema = `

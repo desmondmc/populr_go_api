@@ -28,20 +28,6 @@ func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	Respond(w, r, 201, users)
 }
 
-// Returns a single user.
-func (c *appContext) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	userId := r.Header.Get("x-key")
-
-	user, err := c.getUserWithId(userId)
-	if err != nil {
-		log.Println("Error searching on users: ", err)
-		WriteError(w, ErrInternalServer)
-		return
-	}
-
-	Respond(w, r, 201, *user)
-}
-
 func (c *appContext) loginUserHandler(w http.ResponseWriter, r *http.Request) {
 	body := context.Get(r, "body").(*RecieveUserResource)
 	user := body.Data
@@ -117,19 +103,8 @@ func (c *appContext) searchUsersHandler(w http.ResponseWriter, r *http.Request) 
 	userId := r.Header.Get("x-key")
 	params := context.Get(r, "params").(httprouter.Params)
 	searchTerm := params.ByName("term")
-	searchTerm = fmt.Sprint(searchTerm, "%")
 
-	log.Println("Search Term: ", searchTerm)
-
-	var users []User
-	c.db.Select(
-		&users,
-		"SELECT id, username FROM users WHERE users.username LIKE $1 AND users.id != $2 ORDER BY username ASC",
-		searchTerm,
-		userId,
-	)
-
-	detailedResponseUsers, err := c.makeDetailResponseUsers(&users, userId)
+	detailedResponseUsers, err := c.searchUsers(searchTerm, userId)
 	if err != nil {
 		log.Println("Error searching on users: ", err)
 		WriteError(w, ErrInternalServer)
@@ -144,9 +119,9 @@ func (c *appContext) postFeedbackHandler(w http.ResponseWriter, r *http.Request)
 	body := context.Get(r, "body").(*RecieveFeedbackResource)
 	feedback := body.Data
 
-	_, err := c.db.Exec("INSERT INTO feedbacks (user_id, feedback) VALUES ($1, $2)", userId, feedback.Feedback)
+	err := c.addFeedback(feedback.Feedback, userId)
 	if err != nil {
-		log.Println("Error: ", err)
+		log.Println("Error adding feedback: ", err)
 		WriteError(w, ErrInternalServer)
 		return
 	}
@@ -159,7 +134,7 @@ func (c *appContext) postDeviceTokenHandler(w http.ResponseWriter, r *http.Reque
 	userId := r.Header.Get("x-key")
 	deviceToken := params.ByName("token")
 
-	_, err := c.db.Exec("UPDATE users SET device_token = $1 WHERE id = $2", deviceToken, userId)
+	err := c.addDeviceToken(deviceToken, userId)
 	if err != nil {
 		log.Println("Error setting device token: ", err)
 		WriteError(w, ErrInternalServer)
@@ -174,12 +149,7 @@ func (c *appContext) postPhoneNumberHandler(w http.ResponseWriter, r *http.Reque
 	body := context.Get(r, "body").(*RecievePhoneNumberResource)
 	phoneNumber := body.Data
 
-	_, err := c.db.Exec(
-		"UPDATE users SET phone_number = $1 WHERE id = $2",
-		phoneNumber.PhoneNumber,
-		userId,
-	)
-
+	err := c.addPhoneNumber(phoneNumber.PhoneNumber, userId)
 	if err != nil {
 		log.Println("Error setting phone number: ", err)
 		WriteError(w, ErrInternalServer)
@@ -207,9 +177,9 @@ func (c *appContext) postContactsHandler(w http.ResponseWriter, r *http.Request)
 func (c *appContext) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
 
-	_, err := c.db.Exec("UPDATE users SET device_token = $1 WHERE id = $2", "", userId)
+	err := c.removeDeviceToken(userId)
 	if err != nil {
-		log.Println("Error setting device token: ", err)
+		log.Println("Error removing device token on logout: ", err)
 		WriteError(w, ErrInternalServer)
 		return
 	}
