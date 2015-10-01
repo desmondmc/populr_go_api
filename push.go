@@ -8,11 +8,11 @@ import (
 )
 
 func (c *appContext) SendNewPublicMessagePush(userIds []int64) {
-	c.sendNewMessagePush(userIds, "New message")
+	c.sendNewMessagePush(userIds, "New message!")
 }
 
 func (c *appContext) SendNewDirectMessagePush(userIds []int64) {
-	c.sendNewMessagePush(userIds, "New direct message")
+	c.sendNewMessagePush(userIds, "New direct message!")
 }
 
 func (c *appContext) SendNewFriendPush(toUserId, fromUserId string) {
