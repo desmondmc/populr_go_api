@@ -79,7 +79,7 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(user.Password) < 5 {
+	if len(user.Password) < 4 {
 		log.Println("Signup failed password too short")
 		WriteError(w, ErrShortPassword)
 		return
