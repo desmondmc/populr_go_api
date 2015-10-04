@@ -29,6 +29,7 @@ var (
 	ErrUnsupportedMediaType = &Error{"unsupported_media_type", 415, "Unsupported Media Type", "Content-Type header must be set to: 'application/vnd.api+json'.", ""}
 	ErrInternalServer       = &Error{"internal_server_error", 500, "Internal Server Error", "Something went wrong.", "Something went wrong."}
 	ErrUserExists           = &Error{"user_already_exists", 409, "User Already Exists", "New users must have unique username.", "Username taken. Sorry"}
+	ErrShortPassword        = &Error{"password_too_short", 409, "Password too short", "The password you entered is too short.", "Password too short."}
 	ErrNotFriends           = &Error{"not_friends", 409, "Not Friends with User", "Tried to unfriend a user who you are not friends with.", ""}
 	ErrCannotFriendSelf     = &Error{"cannot_friend_self", 409, "Can't friend yourself", "You tried to friend youself. Don't do that.", ""}
 	ErrAlreadyFriends       = &Error{"already_friends", 409, "Can't befriend someone twice", "You tried to friend someone twice. Don't do that.", ""}

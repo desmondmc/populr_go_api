@@ -79,6 +79,12 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(user.Password) < 5 {
+		log.Println("Signup failed password too short")
+		WriteError(w, ErrShortPassword)
+		return
+	}
+
 	// Create the user
 	err = c.createUser(user.Username, user.Password)
 	if err != nil {
