@@ -29,7 +29,7 @@ AND friends.user_id=$2
 `
 
 const findUserMessages = `
-SELECT messages.id, message, type, created_at, username FROM messages 
+SELECT messages.id, message, type, messages.created_at, username FROM messages 
 JOIN message_to_users
 ON message_to_users.message_id=messages.id
 JOIN users
