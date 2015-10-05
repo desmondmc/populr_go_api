@@ -10,6 +10,7 @@ import (
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/jmoiron/sqlx"
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/justinas/alice"
 	_ "github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type appContext struct {
@@ -62,6 +63,10 @@ func main() {
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
 
+	//Enable monitoring
+	configMonitoring()
+	http.Handle("/metrics", prometheus.Handler())
+
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
 }
@@ -73,7 +78,8 @@ CREATE TABLE users (
     password text,
     device_token text,
     phone_number text,
-    new_token text
+    new_token text,
+    created_at timestamp default now()
 );
 
 CREATE TABLE friends (
