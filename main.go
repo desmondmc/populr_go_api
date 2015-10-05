@@ -10,7 +10,7 @@ import (
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/jmoiron/sqlx"
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/justinas/alice"
 	_ "github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/lib/pq"
-	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type appContext struct {
@@ -65,7 +65,7 @@ func main() {
 
 	//Enable monitoring
 	configMonitoring()
-	http.Handle("/metrics", prometheus.Handler())
+	router.Get("/metrics", prometheus.Handler())
 
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
