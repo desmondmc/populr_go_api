@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/golang.org/x/crypto/bcrypt"
 
-	"github.com/nu7hatch/gouuid"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/nu7hatch/gouuid"
 )
 
 // Some long queries are stored in constants to make them more readable.

@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/guregu/null/zero"
+	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/guregu/null/zero"
 )
 
 type Public interface {

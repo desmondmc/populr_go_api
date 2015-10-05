@@ -1,6 +1,6 @@
 package main
 
-import "github.com/prometheus/client_golang/prometheus"
+import "github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/prometheus/client_golang/prometheus"
 
 var (
 	cpuTemp = prometheus.NewGauge(prometheus.GaugeOpts{
