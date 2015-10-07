@@ -12,7 +12,7 @@ func (c *appContext) SendNewPublicMessagePush(userIds []int64) {
 }
 
 func (c *appContext) SendNewDirectMessagePush(userIds []int64) {
-	c.sendNewMessagePush(userIds, "New direct message!")
+	c.sendNewMessagePush(userIds, "Direct message!")
 }
 
 func (c *appContext) SendNewFriendPush(toUserId, fromUserId string) {
