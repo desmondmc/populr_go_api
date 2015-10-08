@@ -36,15 +36,16 @@ func (c *appContext) postMessageHandler(w http.ResponseWriter, r *http.Request) 
 
 	Respond(w, r, 204, nil)
 
-	// Send pushes
+	// Send pushes increment message stats.
 	if message.Type == "direct" {
 		c.SendNewDirectMessagePush(toUsersIds)
+		DirectMessageCount.Inc()
 	}
 	if message.Type == "public" {
 		c.SendNewPublicMessagePush(toUsersIds)
+		PublicMessageCount.Inc()
 	}
 
-	// Increment message sent stat
 	MessageSentCount.Inc()
 }
 
