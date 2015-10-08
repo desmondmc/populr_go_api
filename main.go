@@ -41,6 +41,7 @@ func main() {
 
 	// Setup middleware
 	appC := appContext{db}
+	monitoringHandlers := alice.New(loggingHandler, recoverHandler)
 	commonHandlers := alice.New(context.ClearHandler, loggingHandler, recoverHandler, acceptHandler)
 	loggedInCommonHandlers := commonHandlers.Append(contentTypeHandler, appC.newTokenHandler, userIdHandler)
 
@@ -65,7 +66,7 @@ func main() {
 
 	// Monitoring
 	initMonitoring()
-	router.Get("/metrics", prometheus.Handler())
+	router.Get("/metrics", monitoringHandlers.Then(prometheus.Handler()))
 
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
