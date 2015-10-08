@@ -102,6 +102,9 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	c.addDefaultMessages(newUserId)
 
 	Respond(w, r, 201, *newUser)
+
+	// Increment Register Count
+	UserCount.Inc()
 }
 
 // Returns all users that match search

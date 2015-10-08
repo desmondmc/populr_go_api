@@ -10,6 +10,7 @@ import (
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/jmoiron/sqlx"
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/justinas/alice"
 	_ "github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type appContext struct {
@@ -61,6 +62,10 @@ func main() {
 	router.Post("/token/:token", loggedInCommonHandlers.ThenFunc(appC.postDeviceTokenHandler))
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
+
+	// Monitoring
+	initMonitoring()
+	router.Get("/metrics", prometheus.Handler())
 
 	log.Println("Listening...")
 	http.ListenAndServe(portString, router)
