@@ -43,6 +43,9 @@ func (c *appContext) postMessageHandler(w http.ResponseWriter, r *http.Request) 
 	if message.Type == "public" {
 		c.SendNewPublicMessagePush(toUsersIds)
 	}
+
+	// Increment message sent stat
+	MessageSentCount.Inc()
 }
 
 func (c *appContext) getMessagesHandler(w http.ResponseWriter, r *http.Request) {
@@ -71,4 +74,7 @@ func (c *appContext) readMessageHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	Respond(w, r, 204, nil)
+
+	// Increment message read stat
+	MessageReadCount.Inc()
 }
