@@ -61,6 +61,7 @@ func sendPush(token, message, mtype string) {
 		payload := apns.NewPayload()
 		payload.Alert = message
 		payload.Badge = 1
+		payload.Sound = "default"
 
 		pn := apns.NewPushNotification()
 		pn.DeviceToken = token
