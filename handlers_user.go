@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 
 	"github.com/desmondmcnamee/populr_go_api/Godeps/_workspace/src/golang.org/x/crypto/bcrypt"
 
@@ -82,6 +83,14 @@ func (c *appContext) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	if len(user.Password) < 4 {
 		log.Println("Signup failed password too short")
 		WriteError(w, ErrShortPassword)
+		return
+	}
+
+	// Letters and numbers only. 3-16 characters.
+	match, _ := regexp.MatchString("^[a-z0-9]{3,16}$", user.Username)
+	if match != true {
+		log.Println("Signup failed invalid username.")
+		WriteError(w, ErrInvalidUsername)
 		return
 	}
 
