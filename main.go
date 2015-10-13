@@ -41,7 +41,7 @@ func main() {
 
 	// Setup middleware
 	appC := appContext{db}
-	monitoringHandlers := alice.New(loggingHandler, recoverHandler)
+	monitoringHandlers := alice.New(recoverHandler)
 	commonHandlers := alice.New(context.ClearHandler, loggingHandler, recoverHandler, acceptHandler)
 	loggedInCommonHandlers := commonHandlers.Append(contentTypeHandler, appC.newTokenHandler, userIdHandler)
 
