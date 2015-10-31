@@ -73,6 +73,7 @@ func sendPush(token, message, mtype string) {
 		resp := client.Send(pn)
 
 		alert, _ := pn.PayloadString()
+
 		log.Println("Sending Push: ")
 		log.Println("  Alert:", alert)
 		log.Println("Success:", resp.Success)
