@@ -85,6 +85,20 @@ const CERT_PEM = "/home/dokku/populr_go_api/pop-prod-cert.pem"
 
 const KEY_PEM = "/home/dokku/populr_go_api/pop-prod-key-noenc.pem"
 
+// HELLO ME IN 2018! Follow these steps to generate the key below.
+/****
+- Go onto apple dev portal and create a production Populr push cert.
+- Download it and add it to your keychain.
+- Export it as p12
+- Private Key (KEY_PEM_RAW):
+	- Run 'openssl pkcs12 -in populr_push.p12 -nocerts -out privateKey.pem'
+	- This might force you to set a password. If it does you'll need to recrypt it
+	- Run 'openssl rsa -in privateKey.pem -out decryptedPrivateKey.pem'
+
+- Cert (CERT_PEM_RAW):
+	- Run 'openssl pkcs12 -in populr_push.p12 -out cert.pem -nodes -clcerts'
+****/
+
 const CERT_PEM_RAW = `
 Bag Attributes
     friendlyName: Apple Push Services: co.getpopulr.populr
