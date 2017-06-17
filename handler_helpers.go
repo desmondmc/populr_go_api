@@ -10,6 +10,7 @@ func Respond(w http.ResponseWriter, r *http.Request, status int, data interface{
 		data = obj.Public()
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/vnd.api+json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(&Resource{Data: data})
