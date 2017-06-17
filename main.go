@@ -42,6 +42,7 @@ func main() {
 	// Setup middleware
 	appC := appContext{db}
 	monitoringHandlers := alice.New(recoverHandler)
+	moreCommonHandlers := alice.New(context.ClearHandler, loggingHandler, recoverHandler)
 	commonHandlers := alice.New(context.ClearHandler, loggingHandler, recoverHandler, acceptHandler)
 	loggedInCommonHandlers := commonHandlers.Append(contentTypeHandler, appC.newTokenHandler, userIdHandler)
 
@@ -53,6 +54,7 @@ func main() {
 	router.Get("/searchusers/:term", loggedInCommonHandlers.ThenFunc(appC.searchUsersHandler))
 	router.Get("/messages", loggedInCommonHandlers.ThenFunc(appC.getMessagesHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.createUserHandler))
+	router.Options("/login", moreCommonHandlers.ThenFunc(appC.optionsHandler))
 	router.Post("/login", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.loginUserHandler))
 	router.Post("/friend/:id", loggedInCommonHandlers.ThenFunc(appC.friendUserHandler))
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))

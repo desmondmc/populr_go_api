@@ -14,3 +14,8 @@ func Respond(w http.ResponseWriter, r *http.Request, status int, data interface{
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(&Resource{Data: data})
 }
+
+func OptionsRespond(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(200)
+}

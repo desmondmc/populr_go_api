@@ -15,6 +15,10 @@ import (
 
 const PopulrUserId = "34"
 
+func (c *appContext) optionsHandler(w http.ResponseWriter, r *http.Request) {
+	OptionsRespond(w)
+}
+
 // Returns all users.
 func (c *appContext) getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("x-key")
