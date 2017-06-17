@@ -17,5 +17,6 @@ func Respond(w http.ResponseWriter, r *http.Request, status int, data interface{
 
 func OptionsRespond(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.WriteHeader(200)
 }
