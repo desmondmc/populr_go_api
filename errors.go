@@ -1,10 +1,5 @@
 package main
 
-import (
-	"encoding/json"
-	"net/http"
-)
-
 type Errors struct {
 	Errors []*Error `json:"errors"`
 }
@@ -15,12 +10,6 @@ type Error struct {
 	Title   string `json:"title"`
 	Detail  string `json:"detail"`
 	Message string `json:"message"` // User friendly message
-}
-
-func WriteError(w http.ResponseWriter, err *Error) {
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	w.WriteHeader(err.Status)
-	json.NewEncoder(w).Encode(Errors{[]*Error{err}})
 }
 
 var (
