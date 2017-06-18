@@ -54,7 +54,7 @@ func main() {
 	router.Get("/searchusers/:term", loggedInCommonHandlers.ThenFunc(appC.searchUsersHandler))
 	router.Get("/messages", loggedInCommonHandlers.ThenFunc(appC.getMessagesHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.createUserHandler))
-	router.Options("/*/", moreCommonHandlers.ThenFunc(appC.optionsHandler))
+
 	router.Post("/login", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.loginUserHandler))
 	router.Post("/friend/:id", loggedInCommonHandlers.ThenFunc(appC.friendUserHandler))
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
@@ -65,6 +65,10 @@ func main() {
 	router.Post("/token/:token", loggedInCommonHandlers.ThenFunc(appC.postDeviceTokenHandler))
 	router.Delete("/unfriend/:id", loggedInCommonHandlers.ThenFunc(appC.unfriendUserHandler))
 	router.Post("/logout", loggedInCommonHandlers.ThenFunc(appC.logoutHandler))
+
+	// Setup Options Routers For WebApp
+	router.Options("/login", moreCommonHandlers.ThenFunc(appC.optionsHandler))
+	router.Options("/signup", moreCommonHandlers.ThenFunc(appC.optionsHandler))
 
 	// Monitoring
 	initMonitoring()
