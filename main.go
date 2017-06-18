@@ -54,7 +54,7 @@ func main() {
 	router.Get("/searchusers/:term", loggedInCommonHandlers.ThenFunc(appC.searchUsersHandler))
 	router.Get("/messages", loggedInCommonHandlers.ThenFunc(appC.getMessagesHandler))
 	router.Post("/signup", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.createUserHandler))
-	router.Options("*", moreCommonHandlers.ThenFunc(appC.optionsHandler))
+	router.Options("/*/", moreCommonHandlers.ThenFunc(appC.optionsHandler))
 	router.Post("/login", commonHandlers.Append(contentTypeHandler, bodyHandler(RecieveUserResource{})).ThenFunc(appC.loginUserHandler))
 	router.Post("/friend/:id", loggedInCommonHandlers.ThenFunc(appC.friendUserHandler))
 	router.Post("/readmessage/:id", loggedInCommonHandlers.ThenFunc(appC.readMessageHandler))
