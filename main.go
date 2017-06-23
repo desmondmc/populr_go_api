@@ -69,6 +69,7 @@ func main() {
 	// Setup Options Routers For WebApp
 	router.Options("/login", moreCommonHandlers.ThenFunc(appC.optionsHandler))
 	router.Options("/signup", moreCommonHandlers.ThenFunc(appC.optionsHandler))
+	router.Options("/messages", moreCommonHandlers.ThenFunc(appC.optionsHandler))
 
 	// Monitoring
 	initMonitoring()
