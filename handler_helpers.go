@@ -19,7 +19,7 @@ func Respond(w http.ResponseWriter, r *http.Request, status int, data interface{
 
 func OptionsRespond(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.WriteHeader(200)
 }
 
