@@ -28,6 +28,7 @@ func main() {
 		database = "user=desmondmcnamee dbname=populr sslmode=disable"
 	}
 
+	
 	// Setup database
 	db, err := sqlx.Connect("postgres", database)
 	if err != nil {
